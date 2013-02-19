@@ -1,9 +1,20 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
-# This file is in the public domain
+# Copyright (C) 2013 <Zane Swafford> <zane@zaneswafford.com>
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#    http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 ### END LICENSE
 from locale import gettext as _
-from gi.repository import Gtk# pylint: disable=E0611
+from gi.repository import Gtk, WebKit# pylint: disable=E0611
 from gi.repository import Gdk
 import pango
 import logging
@@ -11,7 +22,7 @@ import os
 logger = logging.getLogger('spindl')
 from spindl_lib.filer import Filer
 from spindl_lib.timer import Timer
-from spindl_lib.pieGrapher import PieGrapher
+from spindl_lib.charter import Charter
 from spindl_lib.unityIndicator import Indicator
 from spindl_lib.toolbarFormat import *
 from spindl_lib.comboboxFormat import *
@@ -31,7 +42,6 @@ if not os.path.isdir(spindl_directory):
 # Location of the activity database
 CONST_DB_FILE_PATH = spindl_directory + 'spindl.db'
 CONST_CHART_PATH = spindl_directory + 'chart.svg'
-CONST_COLOR_DIR = 'data/media/color_list/'
 
 # See spindl_lib.Window.py for more details about how this class works
 class SpindlWindow(Window):
@@ -88,7 +98,13 @@ class SpindlWindow(Window):
         self.color_column_child_pixbuf = self.builder.get_object("color_column_child_pixbuf")
         self.value_column_child_text = self.builder.get_object("value_column_child_text")
         self.activity_column_child_text = self.builder.get_object("activity_column_child_text")
-        self.scrolledwindow3 = self.builder.get_object("scrolledwindow3")
+
+
+        self.webview_scrolledwindow = self.builder.get_object("webview_scrolledwindow")
+        self.webview = WebKit.WebView()
+        self.webview_scrolledwindow.add(self.webview)
+        self.webview.show()
+
         # Initialize the GtkBoxes that contain the date entries for analytics.
         self.analytics_day_box = self.builder.get_object("analytics_day_box")
         self.analytics_month_box = self.builder.get_object("analytics_month_box")
@@ -120,9 +136,6 @@ class SpindlWindow(Window):
         self.month_entry = self.builder.get_object("month_entry")
         self.from_entry = self.builder.get_object("from_entry")
         self.to_entry = self.builder.get_object("to_entry")
-        self.graph_box = self.builder.get_object("graph_box")
-        self.pie_graph_image = self.builder.get_object("pie_graph_image")
-        self.no_data_label = self.builder.get_object("no_data_label")
         # Initialize the Set Activity Window and its components
         self.set_activity_window = self.builder.get_object("set_activity_window")
         self.set_activity_box = self.builder.get_object("set_activity_box")
@@ -192,13 +205,6 @@ class SpindlWindow(Window):
                         self.stop_time_column_header_label, 
                         self.stop_time_column_child_text, 
                         ellipsize=False)
-        # Format the treeview column used for color swatches in analytics.
-        format_column(self.color_column, 
-                        None, 
-                        self.activity_column_child_text,
-                        self.value_column_child_text,
-                        self.color_column_child_pixbuf)
-        # Format the text in the show and for comboboxes
         format_combobox_text(self.show_combobox_text)
         format_combobox_text(self.for_combobox_text)
         # Set the "Show Percentages" and "Show Time" radiobutton's labels
@@ -211,13 +217,6 @@ class SpindlWindow(Window):
         self.analytics_to_box.set_visible(False)
         self.analytics_for_box.set_visible(False)
         self.analytics_radio_box.set_visible(False)
-        # Hide the label to be shown if no data is present in analytics    
-        self.no_data_label.set_visible(False)
-        # Hide the graph until needed
-        self.graph_box.set_visible(False)
-        # Color the scrolled window that holds color_treeview.
-        self.scrolledwindow3.modify_bg(self.scrolledwindow3.get_state(), 
-                                        Gdk.Color(63231, 62975, 62975))
         # Set the initial values for day/month/from/to values. These are used
         # to determine what time period the graph should be drawn to. They
         # begin at 0 for current day and go backwards (negative) in time.
@@ -230,11 +229,15 @@ class SpindlWindow(Window):
         # Initialize the timer, filer, pieGrapher, and indicator objects
         self.timer = Timer(self.timer_label, self.timer_indicator) 
         self.filer = Filer(CONST_DB_FILE_PATH)
-        self.pieGrapher = PieGrapher(self.pie_graph_image, 
-                                        super(SpindlWindow, self), 
-                                        self.color_liststore,
-                                        CONST_CHART_PATH,
-                                        CONST_COLOR_DIR)
+        self.charter = Charter('ubuntu', CONST_CHART_PATH, self.webview)
+        # Set the data
+        self.charter.data = []#('Activity', 100, 0), ('Things', 25, 1), ('Stuff', 25, 2), ('Cool', 10, 3)]
+        # Create the chart of type pie
+        self.charter.create_chart('pie')
+        # Compound data
+        self.charter.compound_other_data()
+        # Load the chart into the webview
+        self.charter.load_into_webview(initial=True)
         self.indicator = Indicator(self.indicator_menu, 
                                     self.current_activity_indicator,
                                     self.timer_indicator, 
@@ -242,9 +245,6 @@ class SpindlWindow(Window):
                                     self.pause_timer_indicator, 
                                     self.hide_window_indicator,
                                     self.quit_indicator)
-        # Initialize global reference to data_models, A.K.A. the Gtk widgets
-        # that store information to be graphically displayed from the database.
-        self.data_models = (self.log_treestore, self.total_treestore, self.pieGrapher)
         # Load the previous logs from the database
         for entry in self.filer.read_log("*"):
             self.log_treestore.prepend(None, (entry[0], entry[1], entry[2]))
@@ -255,11 +255,13 @@ class SpindlWindow(Window):
                                         (entry[0], 
                                         self.timer.format_timer(entry[1]), 
                                         self.timer.format_timer(entry[2])))
-            self.pieGrapher.add_entry(entry[0], entry[2], entry[3])
-        # Sort the data in the pieGrapher and put it into the image widget
-        self.pieGrapher.sort_data(initial_sort=True)
-        self.pieGrapher.load_into_image()
-        self.pieGrapher.update_size(250, 250)
+        self.charter.data = []
+        # Create the chart of type pie
+        self.charter.create_chart('pie')
+        # Compound data
+        self.charter.compound_other_data()
+        # Load the chart into the webview
+        self.charter.load_into_webview()
         # format all of the date entry widgets
         format_entry_as_date(self.timer.current_date, 
                                 self.day_entry, self.day_value)
@@ -328,7 +330,7 @@ class SpindlWindow(Window):
         self.filer.compound_logs()
         self.log_treestore.clear()
         self.total_treestore.clear()
-        self.pieGrapher.clear()
+        self.charter.clear()
         # Reload the information in the log treestore
         for entry in self.filer.read_log("*"):
             self.log_treestore.prepend(None, (entry[0], entry[1], entry[2]))
@@ -339,10 +341,13 @@ class SpindlWindow(Window):
                                         (entry[0], 
                                         self.timer.format_timer(entry[1]), 
                                         self.timer.format_timer(entry[2])))
-        #    self.pieGrapher.add_entry(entry[0], entry[2], entry[3])
-        ## Sort the new activity information in the graph and load into the image
-        #self.pieGrapher.sort_data()
-        #self.pieGrapher.load_into_image()
+        self.charter.data = self.filer.read_total(self.timer.current_date)
+        # Create the chart of type pie
+        self.charter.create_chart()
+        # Compound data
+        self.charter.compound_other_data()
+        # Load the chart into the webview
+        self.charter.load_into_webview()
         #### CUT AND SPLICE HERE
         model = self.for_combobox.get_model()
         index = self.for_combobox.get_active()
@@ -412,7 +417,7 @@ class SpindlWindow(Window):
         # Clear the treestores and graph
         self.log_treestore.clear()
         self.total_treestore.clear()
-        self.pieGrapher.clear()
+        self.charter.clear()
         # Reload the information in the log treestore
         for entry in self.filer.read_log("*"):
             self.log_treestore.prepend(None, (entry[0], entry[1], entry[2]))
@@ -423,10 +428,13 @@ class SpindlWindow(Window):
                                         (entry[0], 
                                         self.timer.format_timer(entry[1]), 
                                         self.timer.format_timer(entry[2])))
-            #self.pieGrapher.add_entry(entry[0], entry[2], entry[3])
-        ## Sort the new activity information in the graph and load into the image
-        #self.pieGrapher.sort_data()
-        #self.pieGrapher.load_into_image()
+        self.charter.data = self.filer.read_total(self.timer.current_date)
+        # Create the chart of type pie
+        self.charter.create_chart()
+        # Compound data
+        self.charter.compound_other_data()
+        # Load the chart into the webview
+        self.charter.load_into_webview()
         #### CUT AND SPLICE HERE
         model = self.for_combobox.get_model()
         index = self.for_combobox.get_active()
@@ -494,25 +502,18 @@ class SpindlWindow(Window):
     def refresh_totals_graph(self):
         """Called when the user selects 'Totals' show combobox"""
         # Clear the pieGraph
-        self.pieGrapher.clear()
+        self.charter.clear()
         # Update the current date in the timer
         self.timer.update_current_date()
-        # If there are no activities recorded
-        if self.filer.read_total(self.timer.current_date) == []:
-            # Set the 'No Data' Label to visible and hide the graph
-            self.no_data_label.set_visible(True)
-            self.graph_box.set_visible(False)
-        # Else if there are recorded activities
-        else:
-            # Set the 'No Data' Label to invisible and show the graph
-            self.no_data_label.set_visible(False)
-            self.graph_box.set_visible(True)
-            # Refresh all entries in the total pie graph from the database
-            for entry in self.filer.read_total(self.timer.current_date):
-                self.pieGrapher.add_entry(entry[0], entry[2], entry[3])
-            # Sort the data in the pie graph and load it into the image 
-            self.pieGrapher.sort_data()
-            self.pieGrapher.load_into_image()
+        # Set the chart data to reflect the current data
+        #self.charter.data = self.filer.read_total(self.timer.current_date)
+        self.charter.data = self.filer.read_log('*')
+        # Create the chart of type pie
+        self.charter.create_chart()
+        # Compound data
+        self.charter.compound_other_data()
+        # Load the chart into the webview
+        self.charter.load_into_webview()
         # Set the proper entry box as visible 
         self.analytics_day_box.set_visible(False)
         self.analytics_month_box.set_visible(False)
@@ -525,7 +526,8 @@ class SpindlWindow(Window):
             reflect that date"""
         # Initialize the totals for the day selected
         day_totals = []
-        self.pieGrapher.clear()
+        #self.pieGrapher.clear()
+        self.charter.clear()
         # Refresh all entries in the Pie Graph from the database
         for entry in self.filer.read_log("*"): 
             # Get the activity
@@ -574,22 +576,15 @@ class SpindlWindow(Window):
                 if is_new_activity:
                     # Append it to the day_totals
                     day_totals.append((activity, total_time, color))
-        # Iterate through each entry in day_totals and add it to the pieGraph
-        for total in day_totals:
-            self.pieGrapher.add_entry(total[0], total[1], total[2])
-        # If there are no entries in day_totals
-        if day_totals == []:
-            # Show the 'No Data' label and hide the graph
-            self.no_data_label.set_visible(True)
-            self.graph_box.set_visible(False)
-        # If there are entries in day_totals
-        else:
-            # Hide the 'No Data' Label and show the graph
-            self.no_data_label.set_visible(False)
-            self.graph_box.set_visible(True)
-            # Sort the graph and load it into the image
-            self.pieGrapher.sort_data()
-            self.pieGrapher.load_into_image()
+        # Set the data in the chart equal to the day's total times
+        self.charter.data = day_totals
+        # Create the chart of type pie
+        self.charter.create_chart()
+        # Compound data
+        self.charter.compound_other_data()
+        # Load the chart into the webview
+        self.charter.load_into_webview()
+        # Set the proper time selection boxes as visible
         self.analytics_day_box.set_visible(True)
         self.analytics_month_box.set_visible(False)
         self.analytics_from_box.set_visible(False)
@@ -601,7 +596,7 @@ class SpindlWindow(Window):
             reflect that date"""
         # Initialize the totals for the month selected
         month_totals = []
-        self.pieGrapher.clear()
+        self.charter.clear()
         # Refresh all entries in the Pie Graph from the database
         for entry in self.filer.read_log("*"):
             # Get the activity
@@ -642,22 +637,15 @@ class SpindlWindow(Window):
                 if is_new_activity:
                     # Append it to the month_totals
                     month_totals.append((activity, total_time, color))
-        # Iterate through each entry in month_totals and add it to the pieGraph
-        for total in month_totals:
-            self.pieGrapher.add_entry(total[0], total[1], total[2])
-        # If there are no entries in month_totals
-        if month_totals == []:
-            # Show the 'No Data' label and hide the graph
-            self.no_data_label.set_visible(True)
-            self.graph_box.set_visible(False)
-        # If there are entries in month_totals
-        else:
-            # Hide the 'No Data' Label and show the graph
-            self.no_data_label.set_visible(False)
-            self.graph_box.set_visible(True)
-            # Sort the graph and load it into the image
-            self.pieGrapher.sort_data()
-            self.pieGrapher.load_into_image()
+        # Set the data in the chart equal to the month's total times
+        self.charter.data = month_totals
+        # Create the chart of type pie
+        self.charter.create_chart()
+        # Compound data
+        self.charter.compound_other_data()
+        # Load the chart into the webview
+        self.charter.load_into_webview()
+        # Set the proper time selection boxes as visible
         self.analytics_day_box.set_visible(False)
         self.analytics_month_box.set_visible(True)
         self.analytics_from_box.set_visible(False)
@@ -668,7 +656,7 @@ class SpindlWindow(Window):
         """Called to get the date from the span_entry and redraw the graph to 
         reflect that date"""
         span_totals = []
-        self.pieGrapher.clear()
+        self.charter.clear()
         # Refresh all entries in the Pie Graph from the database
         for entry in self.filer.read_log("*"):
             # Get the activity
@@ -725,21 +713,15 @@ class SpindlWindow(Window):
                 if is_new_activity:
                     # Append it to the span_totals
                     span_totals.append((activity, total_time, color))
-        for total in span_totals:
-            self.pieGrapher.add_entry(total[0], total[1], total[2])
-        # If there are no entries in span_totals
-        if span_totals == []:
-            # Show the 'No Data' label and hide the graph
-            self.no_data_label.set_visible(True)
-            self.graph_box.set_visible(False)
-        # If there are entries in span_totals
-        else:
-            # Hide the 'No Data' Label and show the graph
-            self.no_data_label.set_visible(False)
-            self.graph_box.set_visible(True)
-            # Sort the graph and load it into the image
-            self.pieGrapher.sort_data()
-            self.pieGrapher.load_into_image()
+        # Set the data in the chart equal to the span's total times
+        self.charter.data = span_totals
+        # Create the chart of type pie
+        self.charter.create_chart()
+        # Compound data
+        self.charter.compound_other_data()
+        # Load the chart into the webview
+        self.charter.load_into_webview()
+        # Set the proper time selection boxes as visible
         self.analytics_day_box.set_visible(False)
         self.analytics_month_box.set_visible(False)
         self.analytics_from_box.set_visible(True)
@@ -864,8 +846,7 @@ class SpindlWindow(Window):
         # Refresh all entries in the log treestore from the database
         for entry in self.filer.read_log("*"):
             self.log_treestore.prepend(None, (entry[0], entry[1], entry[2]))
-        # Clear the pie graph        
-        self.pieGrapher.clear()
+        self.charter.clear()
         # Refresh all entries in the total treestore from the database
         self.timer.update_current_date()
         for entry in self.filer.read_total(self.timer.current_date):
@@ -873,9 +854,6 @@ class SpindlWindow(Window):
                                         (entry[0], 
                                         self.timer.format_timer(entry[1]), 
                                         self.timer.format_timer(entry[2])))
-            self.pieGrapher.add_entry(entry[0], entry[2], entry[3])
-        self.pieGrapher.sort_data()
-        self.pieGrapher.load_into_image()
         format_menu_from_totals(self.filer.read_total(self.timer.current_date), 
                                 self.set_activity_menu_list, 
                                 self.set_activity_indicator, 
@@ -925,7 +903,7 @@ class SpindlWindow(Window):
         # Refresh all entries in the log treestore from the database
         for entry in self.filer.read_log("*"):
             self.log_treestore.prepend(None, (entry[0], entry[1], entry[2]))
-        self.pieGrapher.clear()
+        self.charter.clear()
         # Refresh all entries in the total treestore from the database
         self.timer.update_current_date()
         for entry in self.filer.read_total(self.timer.current_date):
@@ -933,10 +911,6 @@ class SpindlWindow(Window):
                                         (entry[0], 
                                         self.timer.format_timer(entry[1]), 
                                         self.timer.format_timer(entry[2])))
-            self.pieGrapher.add_entry(entry[0], entry[2], entry[3])
-        # Sort the data in the pieGraph and load it into the image.
-        self.pieGrapher.sort_data()
-        self.pieGrapher.load_into_image()
 
     def on_delete_log_activate(self, user_data):
         """Called when the user selects 'Delete Log' from the log_treeview's 
@@ -955,7 +929,7 @@ class SpindlWindow(Window):
         self.filer.compound_logs()
         self.total_treestore.clear()
         self.log_treestore.clear()
-        self.pieGrapher.clear()
+        self.charter.clear()
         # Refresh all entries in the log treestore from the database
         for entry in self.filer.read_log("*"):
             self.log_treestore.prepend(None, (entry[0], entry[1], entry[2]))
@@ -966,10 +940,6 @@ class SpindlWindow(Window):
                                         (entry[0], 
                                         self.timer.format_timer(entry[1]), 
                                         self.timer.format_timer(entry[2])))
-            self.pieGrapher.add_entry(entry[0], entry[2], entry[3])
-        # Sort the data in the pieGraph and load it into the image
-        self.pieGrapher.sort_data()
-        self.pieGrapher.load_into_image()
         # Format the indicator menu from data in the totals
         format_menu_from_totals(self.filer.read_total(self.timer.current_date), 
                                 self.set_activity_menu_list,
@@ -997,15 +967,18 @@ class SpindlWindow(Window):
         index = self.show_combobox.get_active()
         active_item = model[index][0]
         print '\n\nYou have selected: ' + str(active_item) + '\n\n'
-        if active_item == 'Time Spent':
-            self.analytics_for_box.set_visible(False)
-            self.graph_box.set_visible(False)
+        if active_item == 'Percent of Time Spent':
+            self.charter.type = 'pie'
+            self.analytics_for_box.set_visible(True)
+            self.refresh_totals_graph()
+        elif active_item == 'Total Time Spent':
+            self.charter.type = 'bar'
+            self.analytics_for_box.set_visible(True)
         elif active_item == 'Activity Frequency':
-            self.analytics_for_box.set_visible(False)
-            self.graph_box.set_visible(False)
+            self.charter.type = 'line'
+            self.analytics_for_box.set_visible(True)
         else:
             self.analytics_for_box.set_visible(True)
-            self.graph_box.set_visible(False)
 
     def on_for_combobox_changed(self, user_data):
         """Called when the user specifies a time for analytics in the 'For'
@@ -1216,7 +1189,7 @@ class SpindlWindow(Window):
 
     def on_percentages_radiobutton_toggled(self, user_data):
         """Called when the user selects to see data in terms of percent"""
-        self.pieGrapher.liststore_mode = 'percent'
+        #self.pieGrapher.liststore_mode = 'percent'
         model = self.for_combobox.get_model()
         index = self.for_combobox.get_active()
         active_item = model[index][0]
@@ -1246,7 +1219,7 @@ class SpindlWindow(Window):
 
     def on_time_radiobutton_toggled(self, user_data):
         """Called when the user selects to see data in terms of time"""
-        self.pieGrapher.liststore_mode = 'time'
+        #self.pieGrapher.liststore_mode = 'time'
         model = self.for_combobox.get_model()
         index = self.for_combobox.get_active()
         active_item = model[index][0]
@@ -1276,7 +1249,7 @@ class SpindlWindow(Window):
 
     def on_spindl_window_configure_event(self, event, user_data):
         """Called when the window is resized and resizes the graph image"""
-        self.pieGrapher.update_size()
+        #self.pieGrapher.update_size()
 
 ############### Functions for Unity indicator signals begin here ###############
 
