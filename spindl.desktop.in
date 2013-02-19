@@ -1,0 +1,8 @@
+[Desktop Entry]
+_Name=Spindl
+_Comment=Spindl application
+Categories=GNOME;Utility;
+Exec=spindl
+Icon=spindl
+Terminal=false
+Type=Application
