@@ -20,7 +20,7 @@ from gi.repository import Dee
 _m = dir(Dee.SequenceModel)
 from gi.repository import AppIndicator3
 
-ICON_PATH = "/home/zane/timelog.svg"
+ICON_PATH = "/home/zane/spindl/data/media/spindl.svg"
 
 class Indicator:
     """Adds a section for integrating with Application Indicators"""
@@ -29,14 +29,14 @@ class Indicator:
 
         # Create the AppIndicator
         self.app_indicator = AppIndicator3.Indicator.new(
-                            "Timelog",
+                            "Spindl",
                             ICON_PATH,
                             AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
         # Set it to Active by default
         self.app_indicator.set_status (AppIndicator3.IndicatorStatus.ACTIVE)
 
         # Not displayed in the indicator, but used by HUD
-        self.app_indicator.set_title(('Timelog'))
+        self.app_indicator.set_title(('Spindl'))
 
         # Indicator menu items 
         self.indicator_menu = indicator_menu

@@ -506,7 +506,8 @@ class SpindlWindow(Window):
         # Update the current date in the timer
         self.timer.update_current_date()
         # Set the chart data to reflect the current data
-        self.charter.data = self.filer.read_total(self.timer.current_date)
+        #self.charter.data = self.filer.read_total(self.timer.current_date)
+        self.charter.data = self.filer.read_log('*')
         # Create the chart of type pie
         self.charter.create_chart()
         # Compound data

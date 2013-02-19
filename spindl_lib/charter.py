@@ -97,41 +97,67 @@ class Charter:
 		if self.type == 'line':
 			self.create_line_chart(self.data, span)
 		elif self.type == 'pie':
-			self.create_pie_chart(self.data, span)
+			self.create_pie_chart(self.data)
 		elif self.type == 'bar':
 			self.create_bar_chart(self.data, span)
 
 	def create_line_chart(self, data, span):
 		"""Creates a line chart from the the data"""
-		# data must be set to data before using
+		# data must be organized before using
 		# If size has been specified
+		print 'Span equals: ' + str(span)
 		if not self.size == (None, None):
 			self.chart = Line(style=self.style, width=self.size[0], height=self.size[1])
 		else:
 			self.chart = Line(style=self.style)
-		# init 2Darray
+		# Set the X-Axis labels for the line graph
+		if span == 'day':
+			self.chart.x_labels = map(str, range(0, 23))
+		elif span == 'month':
+			self.chart.x_labels = map(str, range(0, 30))
+		elif span == 'year':
+			self.chart.x_labels = map(str, range(0, 12))
+		else:
+			self.chart.x_labels = map(str, range(0, 5))
+		# Get the frequency data for the line graph
 		frequencies = []
+		# Iterate through data
 		for log in data:
 			in_frequencies = False
-			# fill 2Darray	
+			# Iterate through frequencies to see if log is in frequencies
 			for entry in frequencies:
+				# If the log is in the frequencies
 				if log[0] == entry[0]:
-					 in_frequencies = True
-					 entry[1] += self.get_frequency(log[1], span)
+					# Make a note that the log is in the frequencies and add it 
+					# to the existing frequencies entry
+					in_frequencies = True
+					entry[1] += self.get_frequency(log[1], span)
+			# If the log is not in the frequencies
 			if not in_frequencies:
-				frequencies.append((log[0], self.get_frequency(log[1], span)))
-		# iterate through 2D array
+				# Append the log to the frequencies
+				frequencies.append([log[0], self.get_frequency(log[1], span)])
 		for entry in frequencies:
-			# add each item to the chart
+			total = 0.00
+			for item in entry[1]:
+				total += item*1.00
+			for item in entry[1]:
+				item /= total*1.00
+				item *= 100.00
+				print item
+		# Iterate through finished frequencies list
+		for entry in frequencies:
+			# Add each item to the chart
 			self.chart.add(entry[0], entry[1])
 
 	def get_frequency(self, log, span): 
-		if span == 'day':
-			frequencies = [0] * 24
+		if span == 'day' or span == None:
+			frequencies = [0.0] * 24
 			for hour in xrange(0,23):
+				print 'log equals: ' + str(log)
 				log_time = int(log[-8:-6])
+				print log_time
 				if log_time == hour:
-					frequencies[hour] = 1
+					frequencies[hour] = 1.00
 		elif span == 'week':
 			frequencies = [0] * 7
 			for day in xrange(0,6):
@@ -155,28 +181,17 @@ class Charter:
 			frequencies = []
 		return frequencies
 
-	def create_pie_chart(self, data, span=None):
+	def create_pie_chart(self, data):
 		"""Creates a pie chart from the the data"""
-		# data must be set to data before using
+		# Data must be organized for day, month, etc. before using
 		# If size has been specified
 		if not self.size == (None, None):
 			self.chart = Pie(style=self.style, width=self.size[0], height=self.size[1]) # ,label_font_size=11, legend_font_size=11)
 		else:
 			self.chart = Pie(style=self.style)
-		# If span is not specified
-		if span == None:
-			# Add up data for all time
-			for entry in data:
-				self.chart.add(entry[0], entry[1])
-		elif span[0] == 'day':
-			pass
-			#for entry in logs:
-				#if entry[1][0:-12] == span[1]:
-				# Then the log should be included in the span
-		elif span[0] == 'month':
-			pass
-		elif span[0] == 'year':
-			pass
+		# Add up data for all time
+		for entry in data:
+			self.chart.add(entry[0], entry[1])
 
 	def create_bar_chart(self, span):
 		"""Creates a bar chart from the the data"""
