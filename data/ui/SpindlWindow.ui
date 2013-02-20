@@ -4,16 +4,6 @@
   <!-- interface-requires spindl_window 1.0 -->
   <!-- interface-local-resource-path ../media -->
   <object class="GtkAction" id="action1"/>
-  <object class="GtkEntryCompletion" id="entrycompletion1">
-    <property name="model">total_treestore</property>
-    <property name="minimum_key_length">3</property>
-    <property name="text_column">0</property>
-    <property name="inline_completion">True</property>
-    <property name="popup_completion">False</property>
-    <property name="popup_set_width">False</property>
-    <property name="popup_single_match">False</property>
-    <property name="inline_selection">True</property>
-  </object>
   <object class="GtkListStore" id="color_liststore">
     <columns>
       <!-- column-name Color -->
@@ -28,6 +18,16 @@
     <property name="lower">-10000</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
+  </object>
+  <object class="GtkEntryCompletion" id="entrycompletion1">
+    <property name="model">total_treestore</property>
+    <property name="minimum_key_length">3</property>
+    <property name="text_column">0</property>
+    <property name="inline_completion">True</property>
+    <property name="popup_completion">False</property>
+    <property name="popup_set_width">False</property>
+    <property name="popup_single_match">False</property>
+    <property name="inline_selection">True</property>
   </object>
   <object class="GtkEntryCompletion" id="entrycompletion2">
     <property name="model">total_treestore</property>
@@ -323,38 +323,6 @@
       <attribute name="foreground" value="#88888a8a8585"/>
     </attributes>
   </object>
-  <object class="GtkWindow" id="set_activity_window">
-    <property name="width_request">400</property>
-    <property name="height_request">100</property>
-    <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Spindl</property>
-    <property name="resizable">False</property>
-    <property name="window_position">center</property>
-    <property name="default_width">400</property>
-    <property name="icon">spindl.svg</property>
-    <property name="deletable">False</property>
-    <signal name="delete-event" handler="on_set_activity_window_delete_event" swapped="no"/>
-    <signal name="hide" handler="on_set_activity_window_hide" swapped="no"/>
-    <child>
-      <object class="GtkToolbar" id="set_activity_toolbar">
-        <property name="width_request">400</property>
-        <property name="height_request">100</property>
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="hexpand">True</property>
-        <property name="vexpand">True</property>
-      </object>
-    </child>
-  </object>
-  <object class="GtkLabel" id="set_button_label">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="label" translatable="yes">Set </property>
-    <attributes>
-      <attribute name="font-desc" value="&lt;Enter Value&gt; 10"/>
-      <attribute name="foreground" value="#d3d3d7d7cfcf"/>
-    </attributes>
-  </object>
   <object class="GtkBox" id="set_activity_box">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -434,6 +402,38 @@
       </packing>
     </child>
   </object>
+  <object class="GtkWindow" id="set_activity_window">
+    <property name="width_request">400</property>
+    <property name="height_request">100</property>
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Spindl</property>
+    <property name="resizable">False</property>
+    <property name="window_position">center</property>
+    <property name="default_width">400</property>
+    <property name="icon">spindl.svg</property>
+    <property name="deletable">False</property>
+    <signal name="delete-event" handler="on_set_activity_window_delete_event" swapped="no"/>
+    <signal name="hide" handler="on_set_activity_window_hide" swapped="no"/>
+    <child>
+      <object class="GtkToolbar" id="set_activity_toolbar">
+        <property name="width_request">400</property>
+        <property name="height_request">100</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="hexpand">True</property>
+        <property name="vexpand">True</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkLabel" id="set_button_label">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="label" translatable="yes">Set </property>
+    <attributes>
+      <attribute name="font-desc" value="&lt;Enter Value&gt; 10"/>
+      <attribute name="foreground" value="#d3d3d7d7cfcf"/>
+    </attributes>
+  </object>
   <object class="GtkListStore" id="show_liststore">
     <columns>
       <!-- column-name show_items -->
@@ -450,6 +450,42 @@
         <col id="0" translatable="yes">Activity Frequency</col>
       </row>
     </data>
+  </object>
+  <object class="GtkLabel" id="start_time_column_header_label">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="label" translatable="yes">Start Time</property>
+    <attributes>
+      <attribute name="font-desc" value="Ubuntu 9"/>
+      <attribute name="foreground" value="#88888a8a8585"/>
+    </attributes>
+  </object>
+  <object class="GtkLabel" id="stop_time_column_header_label">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="label" translatable="yes">Stop Time</property>
+    <attributes>
+      <attribute name="font-desc" value="Ubuntu 9"/>
+      <attribute name="foreground" value="#88888a8a8585"/>
+    </attributes>
+  </object>
+  <object class="GtkLabel" id="time_radiobutton_label">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="label" translatable="yes">Show Time</property>
+    <attributes>
+      <attribute name="font-desc" value="Ubuntu 10"/>
+      <attribute name="foreground" value="#88888a8a8585"/>
+    </attributes>
+  </object>
+  <object class="GtkLabel" id="time_today_column_header_label">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="label" translatable="yes">Time Spent Today</property>
+    <attributes>
+      <attribute name="font-desc" value="Ubuntu 9"/>
+      <attribute name="foreground" value="#88888a8a8585"/>
+    </attributes>
   </object>
   <object class="GtkLabel" id="time_total_column_header_label">
     <property name="visible">True</property>
@@ -1372,58 +1408,6 @@
                             <property name="position">5</property>
                           </packing>
                         </child>
-                        <child>
-                          <object class="GtkBox" id="analytics_radio_box">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="margin_top">6</property>
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkRadioButton" id="percentages_radiobutton">
-                                <property name="label" translatable="yes">Show Percentages</property>
-                                <property name="height_request">32</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">False</property>
-                                <property name="halign">start</property>
-                                <property name="xalign">0</property>
-                                <property name="active">True</property>
-                                <property name="draw_indicator">True</property>
-                                <signal name="toggled" handler="on_percentages_radiobutton_toggled" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkRadioButton" id="time_radiobutton">
-                                <property name="label" translatable="yes">Show Time</property>
-                                <property name="height_request">32</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">False</property>
-                                <property name="halign">start</property>
-                                <property name="xalign">0</property>
-                                <property name="active">True</property>
-                                <property name="draw_indicator">True</property>
-                                <property name="group">percentages_radiobutton</property>
-                                <signal name="toggled" handler="on_time_radiobutton_toggled" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">6</property>
-                          </packing>
-                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -1577,42 +1561,6 @@
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkLabel" id="start_time_column_header_label">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="label" translatable="yes">Start Time</property>
-    <attributes>
-      <attribute name="font-desc" value="Ubuntu 9"/>
-      <attribute name="foreground" value="#88888a8a8585"/>
-    </attributes>
-  </object>
-  <object class="GtkLabel" id="stop_time_column_header_label">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="label" translatable="yes">Stop Time</property>
-    <attributes>
-      <attribute name="font-desc" value="Ubuntu 9"/>
-      <attribute name="foreground" value="#88888a8a8585"/>
-    </attributes>
-  </object>
-  <object class="GtkLabel" id="time_radiobutton_label">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="label" translatable="yes">Show Time</property>
-    <attributes>
-      <attribute name="font-desc" value="Ubuntu 10"/>
-      <attribute name="foreground" value="#88888a8a8585"/>
-    </attributes>
-  </object>
-  <object class="GtkLabel" id="time_today_column_header_label">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="label" translatable="yes">Time Spent Today</property>
-    <attributes>
-      <attribute name="font-desc" value="Ubuntu 9"/>
-      <attribute name="foreground" value="#88888a8a8585"/>
-    </attributes>
   </object>
   <object class="GtkBox" id="timer_box">
     <property name="visible">True</property>

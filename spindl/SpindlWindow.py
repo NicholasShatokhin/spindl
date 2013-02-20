@@ -111,7 +111,7 @@ class SpindlWindow(Window):
         self.analytics_from_box = self.builder.get_object("analytics_from_box")
         self.analytics_to_box = self.builder.get_object("analytics_to_box")
         self.analytics_for_box = self.builder.get_object("analytics_for_box")
-        self.analytics_radio_box = self.builder.get_object("analytics_radio_box")
+        #self.analytics_radio_box = self.builder.get_object("analytics_radio_box")
         # Initialize all of the date entries and plus/minus buttons 
         # for analytics
         self.show_combobox = self.builder.get_object("show_combobox")
@@ -122,8 +122,8 @@ class SpindlWindow(Window):
         self.month_entry = self.builder.get_object("month_entry")
         self.from_entry = self.builder.get_object("from_entry")
         self.to_entry = self.builder.get_object("to_entry")
-        self.percentages_radiobutton = self.builder.get_object("percentages_radiobutton")
-        self.time_radiobutton = self.builder.get_object("time_radiobutton")
+        #self.percentages_radiobutton = self.builder.get_object("percentages_radiobutton")
+        #self.time_radiobutton = self.builder.get_object("time_radiobutton")
         self.minus_day_button = self.builder.get_object("minus_day_button")
         self.minus_month_button = self.builder.get_object("minus_month_button")
         self.minus_from_button = self.builder.get_object("minus_from_button")
@@ -208,15 +208,15 @@ class SpindlWindow(Window):
         format_combobox_text(self.show_combobox_text)
         format_combobox_text(self.for_combobox_text)
         # Set the "Show Percentages" and "Show Time" radiobutton's labels
-        self.percentages_radiobutton.modify_fg(0,Gdk.Color(34952, 35466, 34181))
-        self.time_radiobutton.modify_fg(0,Gdk.Color(34952, 35466, 34181))
+        #self.percentages_radiobutton.modify_fg(0,Gdk.Color(34952, 35466, 34181))
+        #self.time_radiobutton.modify_fg(0,Gdk.Color(34952, 35466, 34181))
         # Set the analytics boxes to invisible until told otherwise
         self.analytics_day_box.set_visible(False)
         self.analytics_month_box.set_visible(False)
         self.analytics_from_box.set_visible(False)
         self.analytics_to_box.set_visible(False)
         self.analytics_for_box.set_visible(False)
-        self.analytics_radio_box.set_visible(False)
+        #self.analytics_radio_box.set_visible(False)
         # Set the initial values for day/month/from/to values. These are used
         # to determine what time period the graph should be drawn to. They
         # begin at 0 for current day and go backwards (negative) in time.
@@ -255,13 +255,13 @@ class SpindlWindow(Window):
                                         (entry[0], 
                                         self.timer.format_timer(entry[1]), 
                                         self.timer.format_timer(entry[2])))
-        self.charter.data = []
+        #self.charter.data = []
         # Create the chart of type pie
-        self.charter.create_chart('pie')
+        #self.charter.create_chart('pie')
         # Compound data
-        self.charter.compound_other_data()
+        #self.charter.compound_other_data()
         # Load the chart into the webview
-        self.charter.load_into_webview()
+        #self.charter.load_into_webview()
         # format all of the date entry widgets
         format_entry_as_date(self.timer.current_date, 
                                 self.day_entry, self.day_value)
@@ -341,13 +341,14 @@ class SpindlWindow(Window):
                                         (entry[0], 
                                         self.timer.format_timer(entry[1]), 
                                         self.timer.format_timer(entry[2])))
-        self.charter.data = self.filer.read_total(self.timer.current_date)
+        self.refresh_totals_chart()
+        #self.charter.data = self.filer.read_total(self.timer.current_date)
         # Create the chart of type pie
-        self.charter.create_chart()
+        #self.charter.create_chart()
         # Compound data
-        self.charter.compound_other_data()
+        #self.charter.compound_other_data()
         # Load the chart into the webview
-        self.charter.load_into_webview()
+        #self.charter.load_into_webview()
         #### CUT AND SPLICE HERE
         model = self.for_combobox.get_model()
         index = self.for_combobox.get_active()
@@ -356,25 +357,25 @@ class SpindlWindow(Window):
         self.timer.update_current_date()
         if active_item == 'All Time':
             # Refresh the graph to reflect the totals
-            self.refresh_totals_graph()
+            self.refresh_totals_chart()
         elif active_item == 'Day':
             # Format the day entry as a date
             format_entry_as_date(self.timer.current_date, self.day_entry, 
                                 self.day_value)
             # Refresh the graph to reflect changes in the day entry
-            self.refresh_day_graph()
+            self.refresh_day_chart()
         elif active_item == 'Month':
             # Format the month entry as a date
             format_entry_as_date(self.timer.current_date, self.month_entry, 
                                 self.month_value, show_days=False)
             # Refresh the graph to reflect changes in the day entry
-            self.refresh_month_graph()
+            self.refresh_month_chart()
         elif active_item == 'Span of Time':
             # Format the span entries as a date
             format_entry_as_date(self.timer.current_date, self.from_entry, self.from_value)
             format_entry_as_date(self.timer.current_date, self.to_entry, self.to_value)
             # Refresh the graph to reflect changes in the day entry
-            self.refresh_span_graph()
+            self.refresh_span_chart()
         ####
         # Load the new activity information into the set_activity_menu
         format_menu_from_totals(self.filer.read_total(self.timer.current_date), 
@@ -428,13 +429,14 @@ class SpindlWindow(Window):
                                         (entry[0], 
                                         self.timer.format_timer(entry[1]), 
                                         self.timer.format_timer(entry[2])))
-        self.charter.data = self.filer.read_total(self.timer.current_date)
+        self.refresh_totals_chart()
+        #self.charter.data = self.filer.read_total(self.timer.current_date)
         # Create the chart of type pie
-        self.charter.create_chart()
+        #self.charter.create_chart()
         # Compound data
-        self.charter.compound_other_data()
+        #self.charter.compound_other_data()
         # Load the chart into the webview
-        self.charter.load_into_webview()
+        #self.charter.load_into_webview()
         #### CUT AND SPLICE HERE
         model = self.for_combobox.get_model()
         index = self.for_combobox.get_active()
@@ -443,25 +445,25 @@ class SpindlWindow(Window):
         self.timer.update_current_date()
         if active_item == 'All Time':
             # Refresh the graph to reflect the totals
-            self.refresh_totals_graph()
+            self.refresh_totals_chart()
         elif active_item == 'Day':
             # Format the day entry as a date
             format_entry_as_date(self.timer.current_date, self.day_entry, 
                                 self.day_value)
             # Refresh the graph to reflect changes in the day entry
-            self.refresh_day_graph()
+            self.refresh_day_chart()
         elif active_item == 'Month':
             # Format the month entry as a date
             format_entry_as_date(self.timer.current_date, self.month_entry, 
                                 self.month_value, show_days=False)
             # Refresh the graph to reflect changes in the day entry
-            self.refresh_month_graph()
+            self.refresh_month_chart()
         elif active_item == 'Span of Time':
             # Format the span entries as a date
             format_entry_as_date(self.timer.current_date, self.from_entry, self.from_value)
             format_entry_as_date(self.timer.current_date, self.to_entry, self.to_value)
             # Refresh the graph to reflect changes in the day entry
-            self.refresh_span_graph()
+            self.refresh_span_chart()
         ####
         # Load the new activity information into the set_activity_menu
         format_menu_from_totals(self.filer.read_total(self.timer.current_date), 
@@ -499,16 +501,17 @@ class SpindlWindow(Window):
             # Clear it as well
             self.set_activity_entry.set_text("")
 
-    def refresh_totals_graph(self):
+    def refresh_totals_chart(self):
         """Called when the user selects 'Totals' show combobox"""
         # Clear the pieGraph
         self.charter.clear()
         # Update the current date in the timer
         self.timer.update_current_date()
         # Set the chart data to reflect the current data
-        #self.charter.data = self.filer.read_total(self.timer.current_date)
-        self.charter.data = self.filer.read_log('*')
+        self.charter.data = self.filer.read_total(self.timer.current_date)
+        #self.charter.data = self.filer.read_log('*')
         # Create the chart of type pie
+        print 'Charter Data == ' + str(self.charter.data)
         self.charter.create_chart()
         # Compound data
         self.charter.compound_other_data()
@@ -519,67 +522,29 @@ class SpindlWindow(Window):
         self.analytics_month_box.set_visible(False)
         self.analytics_from_box.set_visible(False)
         self.analytics_to_box.set_visible(False)
-        self.analytics_radio_box.set_visible(True)
+        #self.analytics_radio_box.set_visible(True)
 
-    def refresh_day_graph(self):
+    def refresh_day_chart(self):
         """Called to get the date from the day_entry and redraw the graph to 
             reflect that date"""
-        # Initialize the totals for the day selected
-        day_totals = []
-        #self.pieGrapher.clear()
+        # Clear the pieGraph
         self.charter.clear()
-        # Refresh all entries in the Pie Graph from the database
-        for entry in self.filer.read_log("*"): 
-            # Get the activity
-            activity = entry[0]
-            # Get the color
-            color = entry[3]
-            # Get the month and day selected in entries
-            month = self.day_entry.get_text()[0:2]
-            if month[1] == '/':
-                month = month[0]
-                day = self.day_entry.get_text()[2:4]
-                if day[1] == '/':
+        self.charter.data = self.filer.read_log('*')
+        month = self.day_entry.get_text()[0:2]
+        if month[1] == '/':
+            month = month[0]
+            day = self.day_entry.get_text()[2:4]
+            if day[1] == '/':
+                day = day[0]
+        else:
+            day = self.day_entry.get_text()[3:5]
+            if day[1] == '/':
                     day = day[0]
-            else:
-                day = self.day_entry.get_text()[3:5]
-                if day[1] == '/':
-                        day = day[0]
-            # Get the year selected in the entry
-            year = self.day_entry.get_text()[-4:]
-            # Get the start time of the log entry
-            start_time = unformat_time(tuple_time(entry[1]))
-            # Get the stop time of the log entry
-            stop_time = unformat_time(tuple_time(entry[2]))
-            # Get the minimum and maximum allowed times from the entries
-            minimum = unformat_time((0, 0, 0, day, month, year))
-            maximum = unformat_time((59, 59, 23, day, month, year))
-            # Get the total_time the log entry coincides with the allowed 
-            # minimum and maximum values from the entries
-            total_time = time_in_span(start_time, stop_time, minimum, maximum)
-            # If time in the log coincides with the span in the entry
-            if not total_time == 0:
-                # By default, the log entry is a new activity
-                is_new_activity = True
-                # Iterate through the day_totals if entries exist
-                for total in day_totals:
-                    # If the entry in day_totals has the same activity as the 
-                    # log entry.
-                    if total[0] == entry[0]:
-                        # Update the total_time in the day_total to include the
-                        # time from the log entry.
-                        updated_total = (entry[0], total[1]+total_time, color)
-                        day_totals[day_totals.index(total)] = updated_total
-                        # The activity exists in the logs and is not new
-                        is_new_activity = False
-                # If the entry is a new activity
-                if is_new_activity:
-                    # Append it to the day_totals
-                    day_totals.append((activity, total_time, color))
-        # Set the data in the chart equal to the day's total times
-        self.charter.data = day_totals
+        # Get the year selected in the entry
+        year = self.day_entry.get_text()[-4:]
         # Create the chart of type pie
-        self.charter.create_chart()
+        self.charter.create_chart(span=('day',(0,0,0,day,month,year),
+                                        (59,59,23,day,month,year)))
         # Compound data
         self.charter.compound_other_data()
         # Load the chart into the webview
@@ -589,58 +554,24 @@ class SpindlWindow(Window):
         self.analytics_month_box.set_visible(False)
         self.analytics_from_box.set_visible(False)
         self.analytics_to_box.set_visible(False)
-        self.analytics_radio_box.set_visible(True)
+        #self.analytics_radio_box.set_visible(True)
 
-    def refresh_month_graph(self):
+    def refresh_month_chart(self):
         """Called to get the date from the month_entry and redraw the graph to 
             reflect that date"""
-        # Initialize the totals for the month selected
-        month_totals = []
         self.charter.clear()
-        # Refresh all entries in the Pie Graph from the database
-        for entry in self.filer.read_log("*"):
-            # Get the activity
-            activity = entry[0]
-            # Get the color
-            color = entry[3]
-            # Get the month selected in entry
-            month = self.month_entry.get_text()[0:2]
-            if month[1] == '/':
-                month = month[0]
-            # Get the year selected in the entry
-            year = self.month_entry.get_text()[-4:]
-            # Get the start time of the log entry
-            start_time = unformat_time(tuple_time(entry[1]))
-            # Get the stop time of the log entry
-            stop_time = unformat_time(tuple_time(entry[2]))
-            # Get the minimum and maximum allowed times from the entries
-            minimum = unformat_time((0, 0, 0, 0, month, year))
-            maximum = unformat_time((59, 59, 23, None, month, year))
-            # Get the total_time the log entry coincides with the allowed 
-            # minimum and maximum values from the entries
-            total_time = time_in_span(start_time, stop_time, minimum, maximum)
-            # If time in the log coincides with the span in the entry
-            if (int(month) == tuple_time(entry[1])[4] 
-                and int(year) == tuple_time(entry[1])[5]):
-                is_new_activity = True
-                for total in month_totals:
-                    # If the entry in month_totals has the same activity as the 
-                    # log entry.
-                    if total[0] == entry[0]:
-                        # Update the total_time in the month_total to include the
-                        # time from the log entry.
-                        updated_total = (entry[0], total[1]+total_time, color)
-                        month_totals[month_totals.index(total)] = updated_total
-                        # The activity exists in the logs and is not new
-                        is_new_activity = False
-                # If the entry is a new activity
-                if is_new_activity:
-                    # Append it to the month_totals
-                    month_totals.append((activity, total_time, color))
-        # Set the data in the chart equal to the month's total times
-        self.charter.data = month_totals
+        self.charter.data = self.filer.read_log('*')
+        month = self.month_entry.get_text()[0:2]
+        if month[1] == '/':
+            month = month[0]
+        print month
+        # Get the year selected in the entry
+        year = self.month_entry.get_text()[-4:]
         # Create the chart of type pie
-        self.charter.create_chart()
+        self.charter.create_chart(span=('month',(0,0,0,1,month,year),
+                                        (59,59,23,calendar.mdays[int(month)],
+                                                    int(month),
+                                                    int(year))))
         # Compound data
         self.charter.compound_other_data()
         # Load the chart into the webview
@@ -650,73 +581,42 @@ class SpindlWindow(Window):
         self.analytics_month_box.set_visible(True)
         self.analytics_from_box.set_visible(False)
         self.analytics_to_box.set_visible(False)
-        self.analytics_radio_box.set_visible(True)
+        #self.analytics_radio_box.set_visible(True)
 
-    def refresh_span_graph(self):
+    def refresh_span_chart(self):
         """Called to get the date from the span_entry and redraw the graph to 
         reflect that date"""
-        span_totals = []
+        # Clear the pieGraph
         self.charter.clear()
-        # Refresh all entries in the Pie Graph from the database
-        for entry in self.filer.read_log("*"):
-            # Get the activity
-            activity = entry[0]
-            # Get the color
-            color = entry[3]
-            # Get the month and day selected in the from entry
-            from_month = self.from_entry.get_text()[0:2]
-            if from_month[1] == '/':
-                from_month = from_month[0]
-                from_day = self.from_entry.get_text()[2:4]
-                if from_day[1] == '/':
+        self.charter.data = self.filer.read_log('*')
+        from_month = self.from_entry.get_text()[0:2]
+        if from_month[1] == '/':
+            from_month = from_month[0]
+            from_day = self.from_entry.get_text()[2:4]
+            if from_day[1] == '/':
+                from_day = from_day[0]
+        else:
+            from_day = self.from_entry.get_text()[3:5]
+            if from_day[1] == '/':
                     from_day = from_day[0]
-            else:
-                from_day = self.from_entry.get_text()[3:5]
-                if from_day[1] == '/':
-                        from_day = from_day[0]
-            # Get the year selected in the from entry
-            from_year = self.from_entry.get_text()[-4:]
-            # Get the month and day selected in the to entry
-            to_month = self.to_entry.get_text()[0:2]
-            if to_month[1] == '/':
-                to_month = to_month[0]
-                to_day = self.to_entry.get_text()[2:4]
-                if to_day[1] == '/':
+        # Get the year selected in the entry
+        from_year = self.from_entry.get_text()[-4:]
+        # Get the 'To' date
+        to_month = self.to_entry.get_text()[0:2]
+        if to_month[1] == '/':
+            to_month = to_month[0]
+            to_day = self.to_entry.get_text()[2:4]
+            if to_day[1] == '/':
+                to_day = to_day[0]
+        else:
+            to_day = self.to_entry.get_text()[3:5]
+            if to_day[1] == '/':
                     to_day = to_day[0]
-            else:
-                to_day = self.to_entry.get_text()[3:5]
-                if to_day[1] == '/':
-                        to_day = to_day[0]
-            # Get the year selected in the to entry
-            to_year = self.to_entry.get_text()[-4:]
-            # Get the start time of the log entry
-            start_time = unformat_time(tuple_time(entry[1]))
-            # Get the stop time of the log entry
-            stop_time = unformat_time(tuple_time(entry[2]))
-            # Get the minimum and maximum allowed times from the entries
-            minimum = unformat_time((0, 0, 0, from_day, from_month, from_year))
-            maximum = unformat_time((59, 59, 23, to_day, to_month, to_year))
-            # Get the total_time the log entry coincides with the allowed 
-            # minimum and maximum values from the entries
-            total_time = time_in_span(start_time, stop_time, minimum, maximum)
-            # If time in the log coincides with the span in the entry
-            if not total_time == 0:
-                is_new_activity = True
-                for total in span_totals:
-                    # If the entry in month_totals has the same activity as the 
-                    # log entry.
-                    if total[0] == entry[0]:
-                        updated_total = (entry[0], total[1]+total_time, color)
-                        span_totals[span_totals.index(total)] = updated_total
-                        is_new_activity = False
-                # If the entry is a new activity
-                if is_new_activity:
-                    # Append it to the span_totals
-                    span_totals.append((activity, total_time, color))
-        # Set the data in the chart equal to the span's total times
-        self.charter.data = span_totals
+        # Get the year selected in the entry
+        to_year = self.to_entry.get_text()[-4:]
         # Create the chart of type pie
-        self.charter.create_chart()
+        self.charter.create_chart(span=('span',(0,0,0,from_day,from_month,from_year),
+                                        (59,59,23,to_day,to_month,to_year)))
         # Compound data
         self.charter.compound_other_data()
         # Load the chart into the webview
@@ -726,7 +626,7 @@ class SpindlWindow(Window):
         self.analytics_month_box.set_visible(False)
         self.analytics_from_box.set_visible(True)
         self.analytics_to_box.set_visible(True)
-        self.analytics_radio_box.set_visible(True)
+        #self.analytics_radio_box.set_visible(True)
 
 ################# Functions for Gtk signals begin here ##################
 
@@ -970,7 +870,7 @@ class SpindlWindow(Window):
         if active_item == 'Percent of Time Spent':
             self.charter.type = 'pie'
             self.analytics_for_box.set_visible(True)
-            self.refresh_totals_graph()
+            #self.refresh_totals_chart()
         elif active_item == 'Total Time Spent':
             self.charter.type = 'bar'
             self.analytics_for_box.set_visible(True)
@@ -990,25 +890,25 @@ class SpindlWindow(Window):
         self.timer.update_current_date()
         if active_item == 'All Time':
             # Refresh the graph to reflect the totals
-            self.refresh_totals_graph()
+            self.refresh_totals_chart()
         elif active_item == 'Day':
             # Format the day entry as a date
             format_entry_as_date(self.timer.current_date, self.day_entry, 
                                 self.day_value)
             # Refresh the graph to reflect changes in the day entry
-            self.refresh_day_graph()
+            self.refresh_day_chart()
         elif active_item == 'Month':
             # Format the month entry as a date
             format_entry_as_date(self.timer.current_date, self.month_entry, 
                                 self.month_value, show_days=False)
             # Refresh the graph to reflect changes in the day entry
-            self.refresh_month_graph()
+            self.refresh_month_chart()
         elif active_item == 'Span of Time':
             # Format the span entries as a date
             format_entry_as_date(self.timer.current_date, self.from_entry, self.from_value)
             format_entry_as_date(self.timer.current_date, self.to_entry, self.to_value)
             # Refresh the graph to reflect changes in the day entry
-            self.refresh_span_graph()
+            self.refresh_span_chart()
 
     def on_minus_day_button_pressed(self, user_data):
         """Called when the user presses the minus day button to decrement the 
@@ -1021,7 +921,7 @@ class SpindlWindow(Window):
             format_entry_as_date(self.timer.current_date, self.day_entry, 
                                     self.day_value)
         # Refresh the graph to reflect the changes
-        self.refresh_day_graph()
+        self.refresh_day_chart()
 
     def on_plus_day_button_pressed(self, user_data):
         """Called when the user presses the plus day button to increment the 
@@ -1034,7 +934,7 @@ class SpindlWindow(Window):
             format_entry_as_date(self.timer.current_date, self.day_entry, 
                                     self.day_value)
         # Refresh the graph to reflect the changes
-        self.refresh_day_graph()
+        self.refresh_day_chart()
 
     def on_day_entry_activate(self, user_data):
         """Called when the user manually changes the date in the day entry"""
@@ -1050,7 +950,7 @@ class SpindlWindow(Window):
                                 self.day_entry, 
                                 self.day_value)
         # Refresh the graph to reflect the changes
-        self.refresh_day_graph()
+        self.refresh_day_chart()
 
     def on_minus_month_button_pressed(self, user_data):
         """Called when the user presses the minus month button to decrement the 
@@ -1063,7 +963,7 @@ class SpindlWindow(Window):
             format_entry_as_date(self.timer.current_date, self.month_entry, 
                                     self.month_value, show_days=False)
         # Refresh the graph to reflect the changes
-        self.refresh_month_graph()
+        self.refresh_month_chart()
 
     def on_plus_month_button_pressed(self, user_data):
         """Called when the user presses the plus month button to increment the 
@@ -1076,7 +976,7 @@ class SpindlWindow(Window):
             format_entry_as_date(self.timer.current_date, self.month_entry, 
                                     self.month_value, show_days=False)
         # Refresh the graph to reflect the changes
-        self.refresh_month_graph()
+        self.refresh_month_chart()
 
     def on_month_entry_activate(self, user_data):
         """Called when the user manually changes the date in the month entry"""
@@ -1093,7 +993,7 @@ class SpindlWindow(Window):
         format_entry_as_date(self.timer.current_date, self.month_entry, 
                                 self.month_value, show_days=False)
         # Refresh the graph to reflect the changes
-        self.refresh_month_graph()
+        self.refresh_month_chart()
 
     def on_minus_from_button_pressed(self, user_data):
         """Called when the user presses the minus from button to decrement the 
@@ -1107,7 +1007,7 @@ class SpindlWindow(Window):
                                     self.from_entry, 
                                     self.from_value)
         # Refresh the graph to reflect the changes
-        self.refresh_span_graph()
+        self.refresh_span_chart()
 
     def on_plus_from_button_pressed(self, user_data):
         """Called when the user presses the plus from button to increment the 
@@ -1122,7 +1022,7 @@ class SpindlWindow(Window):
                                     self.from_entry, 
                                     self.from_value)
         # Refresh the graph to reflect the changes
-        self.refresh_span_graph()
+        self.refresh_span_chart()
 
     def on_from_entry_activate(self, user_data):
         """Called when the user manually changes the date in the from entry"""
@@ -1139,7 +1039,7 @@ class SpindlWindow(Window):
                                 self.from_entry, 
                                 self.from_value)
         # Refresh the graph to reflect the changes
-        self.refresh_span_graph()
+        self.refresh_span_chart()
 
     def on_minus_to_button_pressed(self, user_data):
         """Called when the user presses the minus to button to decrement the 
@@ -1154,7 +1054,7 @@ class SpindlWindow(Window):
                                     self.to_entry, 
                                     self.to_value)
         # Refresh the graph to reflect the changes
-        self.refresh_span_graph()
+        self.refresh_span_chart()
 
     def on_plus_to_button_pressed(self, user_data):
         """Called when the user presses the plus to button to increment the 
@@ -1168,7 +1068,7 @@ class SpindlWindow(Window):
                                     self.to_entry, 
                                     self.to_value)
         # Refresh the graph to reflect the changes
-        self.refresh_span_graph()
+        self.refresh_span_chart()
 
     def on_to_entry_activate(self, user_data):
         """Called when the user manually changes the date in the to entry"""
@@ -1185,7 +1085,7 @@ class SpindlWindow(Window):
                                 self.to_entry, 
                                 self.to_value)
         # Refresh the graph to reflect the changes
-        self.refresh_span_graph()
+        self.refresh_span_chart()
 
     def on_percentages_radiobutton_toggled(self, user_data):
         """Called when the user selects to see data in terms of percent"""
@@ -1197,25 +1097,25 @@ class SpindlWindow(Window):
         self.timer.update_current_date()
         if active_item == 'All Time':
             # Refresh the graph to reflect the totals
-            self.refresh_totals_graph()
+            self.refresh_totals_chart()
         elif active_item == 'Day':
             # Format the day entry as a date
             format_entry_as_date(self.timer.current_date, self.day_entry, 
                                 self.day_value)
             # Refresh the graph to reflect changes in the day entry
-            self.refresh_day_graph()
+            self.refresh_day_chart()
         elif active_item == 'Month':
             # Format the month entry as a date
             format_entry_as_date(self.timer.current_date, self.month_entry, 
                                 self.month_value, show_days=False)
             # Refresh the graph to reflect changes in the day entry
-            self.refresh_month_graph()
+            self.refresh_month_chart()
         elif active_item == 'Span of Time':
             # Format the span entries as a date
             format_entry_as_date(self.timer.current_date, self.from_entry, self.from_value)
             format_entry_as_date(self.timer.current_date, self.to_entry, self.to_value)
             # Refresh the graph to reflect changes in the day entry
-            self.refresh_span_graph()
+            self.refresh_span_chart()
 
     def on_time_radiobutton_toggled(self, user_data):
         """Called when the user selects to see data in terms of time"""
@@ -1227,25 +1127,25 @@ class SpindlWindow(Window):
         self.timer.update_current_date()
         if active_item == 'All Time':
             # Refresh the graph to reflect the totals
-            self.refresh_totals_graph()
+            self.refresh_totals_chart()
         elif active_item == 'Day':
             # Format the day entry as a date
             format_entry_as_date(self.timer.current_date, self.day_entry, 
                                 self.day_value)
             # Refresh the graph to reflect changes in the day entry
-            self.refresh_day_graph()
+            self.refresh_day_chart()
         elif active_item == 'Month':
             # Format the month entry as a date
             format_entry_as_date(self.timer.current_date, self.month_entry, 
                                 self.month_value, show_days=False)
             # Refresh the graph to reflect changes in the day entry
-            self.refresh_month_graph()
+            self.refresh_month_chart()
         elif active_item == 'Span of Time':
             # Format the span entries as a date
             format_entry_as_date(self.timer.current_date, self.from_entry, self.from_value)
             format_entry_as_date(self.timer.current_date, self.to_entry, self.to_value)
             # Refresh the graph to reflect changes in the day entry
-            self.refresh_span_graph()
+            self.refresh_span_chart()
 
     def on_spindl_window_configure_event(self, event, user_data):
         """Called when the window is resized and resizes the graph image"""

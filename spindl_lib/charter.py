@@ -17,7 +17,7 @@
 from pygal import *
 from pygal.style import *
 import time
-#import timeFormat
+from timeFormat import *
 import os
 import operator
 
@@ -97,7 +97,7 @@ class Charter:
 		if self.type == 'line':
 			self.create_line_chart(self.data, span)
 		elif self.type == 'pie':
-			self.create_pie_chart(self.data)
+			self.create_pie_chart(self.data, span)
 		elif self.type == 'bar':
 			self.create_bar_chart(self.data, span)
 
@@ -181,17 +181,54 @@ class Charter:
 			frequencies = []
 		return frequencies
 
-	def create_pie_chart(self, data):
+	def create_pie_chart(self, data=None, span='all', no=None):
 		"""Creates a pie chart from the the data"""
 		# Data must be organized for day, month, etc. before using
 		# If size has been specified
 		if not self.size == (None, None):
-			self.chart = Pie(style=self.style, width=self.size[0], height=self.size[1]) # ,label_font_size=11, legend_font_size=11)
+			self.chart = Pie(style=self.style,
+								width=self.size[0], 
+								height=self.size[1])
+		# If size has not already been specified
 		else:
+			# Let the graph dynamically resize within webview
 			self.chart = Pie(style=self.style)
-		# Add up data for all time
-		for entry in data:
-			self.chart.add(entry[0], entry[1])
+		# Create the list of objects to be added to the chart
+		chart_list = []
+		# If the span has been specified, then get the logs only for that time
+		if not span == None and not span == 'all':
+			#print 'Data is: ' + str(data)
+			# Iterate through the log data.
+			for log in self.data:
+				# Get and format the information we need from the log.
+				activity = log[0]
+				log_start = unformat_time(tuple_time(log[1]))
+				log_end = unformat_time(tuple_time(log[2]))
+				minimum = unformat_time(span[1])
+				maximum = unformat_time(span[2])
+				# Add the time and activity to the chart_list.
+				log_time = time_in_span(log_start, log_end, minimum, maximum)
+				# Check if the activity has already been added to chart_list.
+				in_chart_list = False
+				for entry in chart_list:
+					# If the activity is in the chart_list, make a note and add.
+					# its time to the existing list item.
+					if entry[0] == activity:
+						entry[1] += log_time
+						in_chart_list = True
+				# If the log is not in the chart_list and it is in the span, add
+				# it to the chart_list.
+				if not in_chart_list and log_time > 0:
+					chart_list.append([activity, log_time])
+		else:
+			# If span is not specified then the data are totals.
+			# Set the chart_list equal to the total data.
+			for total in data:
+				chart_list.append((total[0], total[2]))
+		# Add each entry is the chart_list to the chart	
+		if not chart_list == None:
+			for entry in chart_list:
+				self.chart.add(entry[0], entry[1])
 
 	def create_bar_chart(self, span):
 		"""Creates a bar chart from the the data"""
