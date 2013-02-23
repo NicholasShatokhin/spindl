@@ -113,7 +113,9 @@ class Charter:
 								fill=True,
 								#print_zeroes=False,
 								print_values=False,
-								human_readable=True)
+								human_readable=True,
+								include_x_axis=True)#,
+								#show_points=False)
 		# If size has not already been specified
 		else:
 			# Let the graph dynamically resize within webview
@@ -133,6 +135,7 @@ class Charter:
 		for log in data:
 				# Get information from the log
 				activity = log[0]
+				print '\n\n LOG IS: ' + str(log[1])
 				start_time = tuple_time(log[1])
 				stop_time = tuple_time(log[2])
 
@@ -152,7 +155,6 @@ class Charter:
 					elif (start_time[2] < hour and stop_time[2] > hour and 
 							difference_in_days == 0):
 							hour_frequency = 1
-					#hour_frequency *= 100
 					activity_frequency.append([hour, hour_frequency])
 				# Check if activity is already in frequencies list
 				activity_in_frequencies = False
@@ -267,7 +269,23 @@ class Charter:
 		"""Send the prepared pie graph to an SVG file"""
 		self.chart.render_to_file(self.filepath)
 		# Set the font in the svg file to the font specified during __init__ 
-		os.system("sed -i 's/font-family:monospace/font-family:ubuntu/g' /home/zane/.spindl/chart.svg") 
+		os.system("sed -i 's/font-family:monospace/font-family:ubuntu/g' /home/zane/.spindl/chart.svg")
+		if self.type == 'line':
+			self.fix_tooltip()
+		#print "OK"
+
+	def fix_font(self):
+		os.system(("sed -i 's/font-family:monospace/font-family:" + self.font 
+					+ "/g' " + self.filepath))
+
+	def fix_tooltip(self):
+		print "FILEPATH = " + str(self.filepath)
+		os.system("sed -i 's/<desc class=\"value\">x=[0-9]*,/<desc class=\"value\">/g' /home/zane/.spindl/chart.svg")
+		#print "OK1"
+		os.system("sed -i 's/<desc class=\"value\"> y=/<desc class=\"value\">/g' /home/zane/.spindl/chart.svg")
+		print "OK2"
+		os.system("sed -i 's/<\/desc>/%<\/desc>/g' /home/zane/.spindl/chart.svg")
+		print "OK3"
 
 	def load_into_webview(self, initial=False):
 		"""Load the SVG file for the chart into the webview"""
