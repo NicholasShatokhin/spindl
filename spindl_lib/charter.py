@@ -269,7 +269,7 @@ class Charter:
 	def fix_font(self):
 		"""Changes the SVG file's default font (monospace) to the font specified
 			when the charter was initialized"""
-		if self.font not == None:
+		if not self.font == None:
 			os.system(("sed -i 's/font-family:monospace/font-family:" + self.font 
 						+ "/g' " + self.filepath))
 
