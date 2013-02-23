@@ -269,23 +269,21 @@ class Charter:
 		"""Send the prepared pie graph to an SVG file"""
 		self.chart.render_to_file(self.filepath)
 		# Set the font in the svg file to the font specified during __init__ 
-		os.system("sed -i 's/font-family:monospace/font-family:ubuntu/g' /home/zane/.spindl/chart.svg")
+		#os.system("sed -i 's/font-family:monospace/font-family:ubuntu/g' /home/zane/.spindl/chart.svg")
+		self.fix_font()
 		if self.type == 'line':
 			self.fix_tooltip()
-		#print "OK"
 
 	def fix_font(self):
 		os.system(("sed -i 's/font-family:monospace/font-family:" + self.font 
 					+ "/g' " + self.filepath))
 
 	def fix_tooltip(self):
-		print "FILEPATH = " + str(self.filepath)
-		os.system("sed -i 's/<desc class=\"value\">x=[0-9]*,/<desc class=\"value\">/g' /home/zane/.spindl/chart.svg")
-		#print "OK1"
-		os.system("sed -i 's/<desc class=\"value\"> y=/<desc class=\"value\">/g' /home/zane/.spindl/chart.svg")
-		print "OK2"
-		os.system("sed -i 's/<\/desc>/%<\/desc>/g' /home/zane/.spindl/chart.svg")
-		print "OK3"
+		os.system(("sed -i 's/<desc class=\"value\">x=[0-9]*,/" + 
+					"<desc class=\"value\">/g' " + self.filepath))
+		os.system(("sed -i 's/<desc class=\"value\"> y=/" + 
+					"<desc class=\"value\">/g' " + self.filepath))
+		os.system(("sed -i 's/<\/desc>/%<\/desc>/g' " + self.filepath))
 
 	def load_into_webview(self, initial=False):
 		"""Load the SVG file for the chart into the webview"""
