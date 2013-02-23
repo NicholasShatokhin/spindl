@@ -120,25 +120,13 @@ class Charter:
 		else:
 			# Let the graph dynamically resize within webview
 			self.chart = XY(style=self.style, fill=True)
-		# Set the X-Axis labels for the line graph
-		#if span[0] == 'day':
-		#	timespan = map(str, range(25))
-		#elif span[0] == 'month':
-		#	timespan = map(str, range(0, 31))
-		# Else span[0] == 'year'
-		#else:
-		#	timespan = map(str, range(0, 12))
-		#self.chart.x_labels = timespan
-		
 		frequencies = []
 		# Iterate through logs
 		for log in data:
 				# Get information from the log
 				activity = log[0]
-				print '\n\n LOG IS: ' + str(log[1])
 				start_time = tuple_time(log[1])
 				stop_time = tuple_time(log[2])
-
 				# Get the difference in days from start and stop times
 				difference_in_days = ((unformat_time(stop_time) - 
 										unformat_time(start_time)) / 86400)
@@ -169,7 +157,6 @@ class Charter:
 					# Append the activity to the frequencies list
 					frequencies.append([activity, activity_frequency])
 		# Change the frequencies in the frequencies list to percentages
-	
 		for frequency in frequencies:
 			# Get the sum of all frequencies for the activity
 			sum_of_activity_frequencies = 0
@@ -178,7 +165,7 @@ class Charter:
 			# Change the value to a percentage
 			for hour in frequency[1]:
 				hour[1] = (hour[1]*100.00) / (sum_of_activity_frequencies*1.00)
-
+		# Add the frequencies to the line chart
 		for entry in frequencies:
 				self.chart.add(entry[0], entry[1])
 		
@@ -254,10 +241,15 @@ class Charter:
 	def sort_colorlist(self):
 		"""Used to make the order of the color_list match the order pf the 
 			pie_list's activity colors"""
+		# Create an empty list to put the sorted colors in
 		sorted_colorlist = [] * len(self.colorlist) 
+		# Iterate through the chart data
 		for index in xrange (0, len(self.data)):
+			# Get the specified color from the chart data 
 			color = self.data[index][2]
+			# Arrange the colorlist so that the given datum recieves that color
 			sorted_colorlist[index] = self.colorlist[color]
+		# Set the colorlist to the sorted_colorlist
 		self.colorlist = sorted_colorlist
 
 	def sort(self):
@@ -269,16 +261,22 @@ class Charter:
 		"""Send the prepared pie graph to an SVG file"""
 		self.chart.render_to_file(self.filepath)
 		# Set the font in the svg file to the font specified during __init__ 
-		#os.system("sed -i 's/font-family:monospace/font-family:ubuntu/g' /home/zane/.spindl/chart.svg")
 		self.fix_font()
+		# If the chart type is a line chart, fix the tooltip accordingly.
 		if self.type == 'line':
 			self.fix_tooltip()
 
 	def fix_font(self):
-		os.system(("sed -i 's/font-family:monospace/font-family:" + self.font 
-					+ "/g' " + self.filepath))
+		"""Changes the SVG file's default font (monospace) to the font specified
+			when the charter was initialized"""
+		if self.font not == None:
+			os.system(("sed -i 's/font-family:monospace/font-family:" + self.font 
+						+ "/g' " + self.filepath))
 
 	def fix_tooltip(self):
+		""" Use sed and regular expressions to replace the SVG tooltip normal
+			mouseover (x=?, y=?) to a nicely formatted frequency of ?%"""
+		## Only to be used with line charts
 		os.system(("sed -i 's/<desc class=\"value\">x=[0-9]*,/" + 
 					"<desc class=\"value\">/g' " + self.filepath))
 		os.system(("sed -i 's/<desc class=\"value\"> y=/" + 
