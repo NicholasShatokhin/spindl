@@ -341,7 +341,6 @@ class SpindlWindow(Window):
                                         (entry[0], 
                                         self.timer.format_timer(entry[1]), 
                                         self.timer.format_timer(entry[2])))
-        self.refresh_totals_chart()
         #self.charter.data = self.filer.read_total(self.timer.current_date)
         # Create the chart of type pie
         #self.charter.create_chart()
@@ -429,7 +428,6 @@ class SpindlWindow(Window):
                                         (entry[0], 
                                         self.timer.format_timer(entry[1]), 
                                         self.timer.format_timer(entry[2])))
-        self.refresh_totals_chart()
         #self.charter.data = self.filer.read_total(self.timer.current_date)
         # Create the chart of type pie
         #self.charter.create_chart()

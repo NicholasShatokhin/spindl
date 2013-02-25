@@ -75,21 +75,23 @@ class Charter:
 		"""Compounds smallest data entries into 'other' entry"""
 		# This function is necessary to keep legend from growing larger than the 
 		# widget it is contained in.
-		if len(self.data) > CONST_MAX_DATA_ENTRIES:
-			# Make a copy of the data
-			sorted_data = self.data
-			# Organize the copy from smallest to largest
-			sorted_data.sort(key=operator.itemgetter(1))
-			# Add entry ("Other", 0, max_color) to data
-			self.add_entry("Other", 0, max_color)
-			# While there are more data entries than CONST_MAX_DATA_ENTRIES
-			while len(sorted_data) > CONST_MAX_DATA_ENTRIES:
-				# Add the smallest entry to data the "Other" entry.
-				sorted_data[-1][1] += sorted_data[0][1] 
-				# Remove the smallest entry
-				sorted_data = sorted_data[1:]
-			# Set original data equal to the modified copy
-			self.data = sorted_data
+		#if len(self.data) > CONST_MAX_DATA_ENTRIES:
+		#	# Make a copy of the data
+		#	sorted_data = self.data
+		#	# Organize the copy from smallest to largest
+		#	sorted_data.sort(key=operator.itemgetter(1))
+		#	# Add entry ("Other", 0, max_color) to data
+		#	max_color = len(CONST_COLOR_LIST)-1
+		#	self.add_entry("Other", 0, max_color)
+		#	# While there are more data entries than CONST_MAX_DATA_ENTRIES
+		#	while len(sorted_data) > CONST_MAX_DATA_ENTRIES:
+		#		# Add the smallest entry to data the "Other" entry.
+		#		sorted_data[-1][1] += sorted_data[0][1] 
+		#		# Remove the smallest entry
+		#		sorted_data = sorted_data[1:]
+		#	# Set original data equal to the modified copy
+		#	self.data = sorted_data
+		pass
 
 	def create_chart(self, chart_type=None, span=None):
 		"""Creates a chart of the given type based the data"""
@@ -101,74 +103,117 @@ class Charter:
 			self.create_pie_chart(self.data, span)
 		elif self.type == 'bar':
 			self.create_bar_chart(self.data, span)
-
+	
 	def create_line_chart(self, data, span):
 		"""Creates a line chart from the the data"""
 		# Data must be organized for day, month, etc. before using
 		# If size has been specified
 		if not self.size == (None, None):
-			self.chart =  XY(style=self.style, 
-								width=self.size[0], 
-								height=self.size[1],
-								fill=True,
-								#print_zeroes=False,
-								print_values=False,
-								human_readable=True,
-								include_x_axis=True)#,
-								#show_points=False)
+			self.chart =  XY(style=self.style, width=self.size[0], 
+								height=self.size[1], fill=True, 
+								print_values=False, human_readable=True,
+								include_x_axis=True)
 		# If size has not already been specified
 		else:
 			# Let the graph dynamically resize within webview
-			self.chart = XY(style=self.style, fill=True)
+			self.chart = XY(style=self.style, fill=True, print_values=False,
+								human_readable=True, include_x_axis=True)
 		frequencies = []
 		# Iterate through logs
 		for log in data:
-				# Get information from the log
-				activity = log[0]
-				start_time = tuple_time(log[1])
-				stop_time = tuple_time(log[2])
-				# Get the difference in days from start and stop times
-				difference_in_days = ((unformat_time(stop_time) - 
-										unformat_time(start_time)) / 86400)
-				# Get the frequency from the given log
-				activity_frequency = []
+			# Get information from the log
+			activity = log[0]
+			start_time = tuple_time(log[1])
+			stop_time = tuple_time(log[2])
+			# Get the difference in days from start and stop times
+			difference_in_days = ((unformat_time(stop_time) - 
+									unformat_time(start_time)) / 86400)
+			# Get the frequency from the given log
+			activity_frequency = []
+			# Set the timespan based on the span[0]
+			if span[0] == 'day':
+				timespan = 25
+				timeindex = 2
 				for hour in xrange(25):
 					hour_frequency = 0
-					if start_time[2] == hour and stop_time[2] == hour:
-						hour_frequency = ((stop_time[1] + stop_time[0]/60) - 
-											(start_time[1] + start_time[0]/60))
-					elif start_time[2] == hour and not stop_time[2] == hour:
-						hour_frequency = (60 - (start_time[1] + 
-												start_time[0]/60))
-					elif (start_time[2] < hour and stop_time[2] > hour and 
-							difference_in_days == 0):
+					# If the log only spans a part of one day
+					if difference_in_days == 0:
+						if start_time[2] == hour and stop_time[2] == hour:
+							hour_frequency = ((stop_time[1] + 1.00*stop_time[0]/60) - 
+												(start_time[1] + 1.00*start_time[0]/60))
+						elif start_time[2] == hour and not stop_time[2] == hour:
+							hour_frequency = (60 - (start_time[1] + 
+													1.00*start_time[0]/60))
+						elif not start_time[2] == hour and stop_time[2] == hour:
+							hour_frequency = stop_time[1] + 1.00*stop_time[0]/60
+						elif (start_time[2] < hour and stop_time[2] > hour):
 							hour_frequency = 1
+					# If the log spans one or more days
+					else:
+						# The frequency is equal to the number of times the log
+						# spans over the given time.
+						hour_frequency = difference_in_days
 					activity_frequency.append([hour, hour_frequency])
-				# Check if activity is already in frequencies list
-				activity_in_frequencies = False
-				for frequency in frequencies:
-					# If the activity is in the frequencies list
-					if frequency[0] == activity:
-						# Add the activity's frequency to the existing list item
-						frequency[1] += activity_frequency
-						activity_in_frequencies = True
-				# If the activity is not in the frequencies list		
-				if not activity_in_frequencies:
-					# Append the activity to the frequencies list
-					frequencies.append([activity, activity_frequency])
+			elif span[0] == 'month':
+				timespan = 32
+				timeindex = 3
+				for day in xrange(32):
+					day_frequency = 0
+					if start_time[3] == day and stop_time[3] == day:
+						day_frequency = ((stop_time[2] + 1.00*stop_time[1]/60 + 1.00*stop_time[0]/3600) - 
+											(start_time[2] + 1.00*start_time[1]/60 + 1.00*start_time[0]/3600))
+					elif start_time[3] == day and not stop_time[3] == day:
+						day_frequency = (24 - (1.00*start_time[1]/60 + 1.00*start_time[0]/3600))
+					elif not start_time[3] == day and stop_time[3] == day:
+						day_frequency = (stop_time[2] + 1.00*stop_time[1]/60 + 1.00*stop_time[0]/3600)
+					elif (start_time[3] < day and stop_time[3] > day):
+						day_frequency = 1
+					activity_frequency.append([day, day_frequency])
+			#Else span[0] == 'year'
+			else:
+				timespan = 13
+				timeindex = 4
+				for month in xrange(13):
+					month_frequency = 0
+					if start_time[4] == month and stop_time[4] == month:
+						month_frequency = ((stop_time[1] + stop_time[2]/24 + 1.00*stop_time[1]/1440 + 1.00*stop_time[0]/86400) - 
+											(start_time[1] + start_time[2]/24 + 1.00*start_time[1]/1440 + 1.00*start_time[0]/86400))
+					elif start_time[4] == month and not stop_time[4] == month:
+						month_frequency = (calendar.monthrange(start_time[5], month)[1] - (start_time[2]/24 + 1.00*start_time[1]/1440 + 1.00*start_time[0]/86400))
+					elif not start_time[4] == month and stop_time[4] == month:
+						month_frequency = (stop_time[4] + start_time[2]/24 + 1.00*start_time[1]/1440 + 1.00*start_time[0]/86400)
+					elif (start_time[4] < month and stop_time[4] > month):
+						month_frequency = 1
+					activity_frequency.append([month, month_frequency])
+			# Check if activity is already in frequencies list
+			activity_in_frequencies = False
+			for frequency in frequencies:
+				# If the activity is in the frequencies list
+				if frequency[0] == activity:
+					# Add the activity's frequency to the existing list item
+					for hour in xrange(timespan):
+						frequency[1][hour][1] += activity_frequency[hour][1]
+					# Note that the activity is already in the frequencies
+					activity_in_frequencies = True
+			# If the activity is not in the frequencies list		
+			if not activity_in_frequencies:
+				# Append the activity to the frequencies list
+				frequencies.append([activity, activity_frequency])
 		# Change the frequencies in the frequencies list to percentages
 		for frequency in frequencies:
 			# Get the sum of all frequencies for the activity
 			sum_of_activity_frequencies = 0
-			for hour in frequency[1]:
-				sum_of_activity_frequencies += hour[1]
+			for time in frequency[1]:
+				sum_of_activity_frequencies += time[1]
 			# Change the value to a percentage
-			for hour in frequency[1]:
-				hour[1] = (hour[1]*100.00) / (sum_of_activity_frequencies*1.00)
+			for time in frequency[1]:
+				if not sum_of_activity_frequencies == 0:
+					time[1] = (time[1]*100.00) / (sum_of_activity_frequencies*1.00)
+				else:
+					time[1] = 0
 		# Add the frequencies to the line chart
 		for entry in frequencies:
 				self.chart.add(entry[0], entry[1])
-		
 
 	def create_pie_chart(self, data=None, span='all', no=None):
 		"""Creates a pie chart from the the data"""
@@ -239,7 +284,7 @@ class Charter:
 		self.data = sorted_data[::-1]
 
 	def sort_colorlist(self):
-		"""Used to make the order of the color_list match the order pf the 
+		"""Used to make the order of the color_list match the order of the 
 			pie_list's activity colors"""
 		# Create an empty list to put the sorted colors in
 		sorted_colorlist = [] * len(self.colorlist) 
