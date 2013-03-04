@@ -222,17 +222,20 @@ class Charter:
 		if not self.size == (None, None):
 			self.chart = Pie(style=self.style,
 								print_values=False,
+								fill=True,
+								human_readable=True,
+								include_x_axis=True,
 								width=self.size[0], 
 								height=self.size[1])
 		# If size has not already been specified
 		else:
 			# Let the graph dynamically resize within webview
-			self.chart = Pie(style=self.style, print_values=False)
+			self.chart = Pie(style=self.style, print_values=False, fill=True,
+								human_readable=True, include_x_axis=True)
 		# Create the list of objects to be added to the chart
 		chart_list = []
 		# If the span has been specified, then get the logs only for that time
 		if not span == None and not span == 'all':
-			#print 'Data is: ' + str(data)
 			# Iterate through the log data.
 			for log in self.data:
 				# Get and format the information we need from the log.
@@ -267,7 +270,25 @@ class Charter:
 
 	def create_bar_chart(self, data, span):
 		"""Creates a bar chart from the the data"""
-		pass
+		# Data must be organized for day, month, etc. before using
+		# If size has been specified
+		if not self.size == (None, None):
+			self.chart = Bar(style=self.style,
+								print_values=False,
+								width=self.size[0], 
+								height=self.size[1])
+		# If size has not already been specified
+		else:
+			# Let the graph dynamically resize within webview
+			self.chart = Bar(style=self.style, print_values=False)
+		# Initialize some dummy values for chart_list
+		chart_list = [('Working', [None, None, 0, 16.6,   25,   31, 36.4, 45.5, 46.3, 42.8, 37.1]),
+				('Cleaning',  [None, None, None, None, None, None,    0,  3.9, 10.8, 23.8, 35.3]),
+				('Studying',      [85.8, 84.6, 84.7, 74.5,   66, 58.6, 54.7, 44.8, 36.2, 26.6, 20.1])]
+		## Add each entry is the chart_list to the chart	
+		if not chart_list == None:
+			for entry in chart_list:
+				self.chart.add(entry[0], entry[1])
 
 	def clear(self):
 		"""Resets the data and chart"""
