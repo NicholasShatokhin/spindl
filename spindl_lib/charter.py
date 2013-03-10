@@ -21,6 +21,8 @@ import calendar
 from timeFormat import *
 import os
 import operator
+from datetime import timedelta
+from math import ceil
 
 CONST_MAX_DATA_ENTRIES = 18
 CONST_MAX_VERTICAL_ENTRIES = 20
@@ -160,18 +162,16 @@ class Charter:
 		# Data must be organized for day, month, etc. before using
 		# If size has been specified
 		if not self.size == (None, None):
-			self.chart = Bar(style=self.style,
-								#print_values=False,
-								width=self.size[0], 
-								height=self.size[1])
+			self.chart = Bar(style=self.style, y_scale=60.0,
+								print_values=False, include_x_axis=True,
+								width=self.size[0], height=self.size[1])
 		# If size has not already been specified
 		else:
 			# Let the graph dynamically resize within webview
-			self.chart = Bar(style=self.style)#, print_values=False)
-		# Initialize some dummy values for chart_list
-		chart_list = []#[('Working', [None, None, 0, 16.6,   25,   31, 36.4, 45.5, 46.3, 42.8, 37.1]),
-				#('Cleaning',  [None, None, None, None, None, None,    0,  3.9, 10.8, 23.8, 35.3]),
-				#('Studying',      [85.8, 84.6, 84.7, 74.5,   66, 58.6, 54.7, 44.8, 36.2, 26.6, 20.1])]
+			self.chart = Bar(style=self.style, print_values=False,
+								include_x_axis=True, y_scale=60.0)
+		# Initialize the chart_list
+		chart_list = []
 		for log in data:
 			activity_time = 0
 			activity = log[0]
@@ -189,10 +189,43 @@ class Charter:
 					in_chart_list = True
 			if not in_chart_list and activity_time > 0:
 				chart_list.append([activity, activity_time])
+		# Set up the y axis
+		maximum_time_in_seconds = 0
+		for entry in chart_list:
+			if entry[1] > maximum_time_in_seconds:
+				maximum_time_in_seconds = entry[1]
+		max_number_of_minutes = int(ceil(maximum_time_in_seconds/60))+2
+		if max_number_of_minutes > 2:
+			y_labels = []
+			if max_number_of_minutes < 30:
+				for minute in xrange(max_number_of_minutes+1):
+					y_labels.append(minute*60)
+			elif max_number_of_minutes >= 30 and max_number_of_minutes < 60:
+				for minute in xrange((max_number_of_minutes/5)+1):
+					y_labels.append(minute*60*5)
+			elif max_number_of_minutes >= 60 and max_number_of_minutes < 120:
+				for minute in xrange((max_number_of_minutes/10)+2):
+					y_labels.append(minute*60*10)
+			elif max_number_of_minutes >= 120 and max_number_of_minutes < 240:
+				for minute in xrange((max_number_of_minutes/15)+1):
+					y_labels.append(minute*60*15)
+			elif max_number_of_minutes >= 240 and max_number_of_minutes < 480:
+				for minute in xrange((max_number_of_minutes/20)+1):
+					y_labels.append(minute*60*20)
+			elif max_number_of_minutes >= 480 and max_number_of_minutes < 960:	
+				for minute in xrange((max_number_of_minutes/30)+1):
+					y_labels.append(minute*60*30)
+			elif max_number_of_minutes >= 960:
+				for minute in xrange((max_number_of_minutes/60)+1):
+					y_labels.append(minute*3600)
+			self.chart.y_labels = y_labels	
 		## Add each entry is the chart_list to the chart	
 		if not chart_list == []:
 			for entry in chart_list:
-				self.chart.add(entry[0], entry[1])
+				time = str(timedelta(seconds=entry[1]))
+				if time[1] == ':':
+					time = '0' + time
+				self.chart.add(entry[0], [{'value':entry[1], 'label':time}])
 		else:
 			self.chart = Pie(style=self.style, width=self.size[0],
 								height=self.size[1])
@@ -242,6 +275,7 @@ class Charter:
 		if not self.font == None:
 			os.system(("sed -i 's/font-family:monospace/font-family:" + self.font 
 						+ "/g' " + self.filepath))
+
 	def load_into_webview(self, initial=False):
 		"""Load the SVG file for the chart into the webview"""
 		self.sort()
