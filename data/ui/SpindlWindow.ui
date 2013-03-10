@@ -444,10 +444,7 @@
         <col id="0" translatable="yes">Percent of Time Spent</col>
       </row>
       <row>
-        <col id="0" translatable="yes">Total Time Spent</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Activity Frequency</col>
+        <col id="0" translatable="yes">Amount of Time Spent</col>
       </row>
     </data>
   </object>

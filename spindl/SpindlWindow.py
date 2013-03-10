@@ -49,7 +49,6 @@ class SpindlWindow(Window):
     
     def finish_initializing(self, builder): 
         """Set up the main window"""
-        print CONST_DB_FILE_PATH
         super(SpindlWindow, self).finish_initializing(builder)
         self.AboutDialog = AboutSpindlDialog
         self.PreferencesDialog = PreferencesSpindlDialog
@@ -562,7 +561,6 @@ class SpindlWindow(Window):
         month = self.month_entry.get_text()[0:2]
         if month[1] == '/':
             month = month[0]
-        print month
         # Get the year selected in the entry
         year = self.month_entry.get_text()[-4:]
         # Create the chart of type pie
@@ -869,11 +867,8 @@ class SpindlWindow(Window):
             self.charter.type = 'pie'
             self.analytics_for_box.set_visible(True)
             #self.refresh_totals_chart()
-        elif active_item == 'Total Time Spent':
+        elif active_item == 'Amount of Time Spent':
             self.charter.type = 'bar'
-            self.analytics_for_box.set_visible(True)
-        elif active_item == 'Activity Frequency':
-            self.charter.type = 'line'
             self.analytics_for_box.set_visible(True)
         else:
             self.analytics_for_box.set_visible(True)
