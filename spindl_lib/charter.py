@@ -189,6 +189,20 @@ class Charter:
 					in_chart_list = True
 			if not in_chart_list and activity_time > 0:
 				chart_list.append([activity, activity_time])
+		self.set_y_labels(chart_list)
+		## Add each entry is the chart_list to the chart	
+		if not chart_list == []:
+			for entry in chart_list:
+				time = str(timedelta(seconds=entry[1]))
+				if time[1] == ':':
+					time = '0' + time
+				self.chart.add(entry[0], [{'value':entry[1], 'label':time}])
+		else:
+			self.chart = Pie(style=self.style, width=self.size[0],
+								height=self.size[1])
+
+	def set_y_labels(self, chart_list):
+		"""Sets the y labels """
 		# Set up the y axis
 		maximum_time_in_seconds = 0
 		for entry in chart_list:
@@ -219,16 +233,13 @@ class Charter:
 				for minute in xrange((max_number_of_minutes/60)+1):
 					y_labels.append(minute*3600)
 			self.chart.y_labels = y_labels	
-		## Add each entry is the chart_list to the chart	
-		if not chart_list == []:
-			for entry in chart_list:
-				time = str(timedelta(seconds=entry[1]))
-				if time[1] == ':':
-					time = '0' + time
-				self.chart.add(entry[0], [{'value':entry[1], 'label':time}])
-		else:
-			self.chart = Pie(style=self.style, width=self.size[0],
-								height=self.size[1])
+
+	def fix_tooltip(self):
+		"""Changes the SVG file's default mouseover tooltip to no longer contain 
+			value for time in seconds"""
+		if not self.filepath == None:
+			os.system(("sed -i 's/<desc class=\"value\">[0-9]*<\/desc>//g' " + 
+						self.filepath))
 
 	def clear(self):
 		"""Resets the data and chart"""
@@ -268,6 +279,8 @@ class Charter:
 		self.chart.render_to_file(self.filepath)
 		# Set the font in the svg file to the font specified during __init__ 
 		self.fix_font()
+		if self.type == 'bar':
+			self.fix_tooltip()
 
 	def fix_font(self):
 		"""Changes the SVG file's default font (monospace) to the font specified
