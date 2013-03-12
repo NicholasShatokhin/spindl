@@ -23,6 +23,7 @@ import os
 import operator
 from datetime import timedelta
 from math import ceil
+import subprocess
 
 CONST_MAX_DATA_ENTRIES = 18
 CONST_MAX_VERTICAL_ENTRIES = 20
@@ -202,7 +203,7 @@ class Charter:
 								height=self.size[1])
 
 	def set_y_labels(self, chart_list):
-		"""Sets the y labels """
+		"""Sets the y labels on a bar chart"""
 		# Set up the y axis
 		maximum_time_in_seconds = 0
 		for entry in chart_list:
@@ -233,6 +234,17 @@ class Charter:
 				for minute in xrange((max_number_of_minutes/60)+1):
 					y_labels.append(minute*3600)
 			self.chart.y_labels = y_labels	
+
+	def convert_y_axis_to_minutes(self, label):
+		"""Converts y axis labels from seconds to minutes"""
+		y_value_in_minutes = ''
+		y_value_in_minutes = str(timedelta(seconds=int(label)))
+		if y_value_in_minutes[1] == ':':
+			y_value_in_minutes = '0' + y_value_in_minutes
+		if not self.filepath == None:
+			cmd = ("sed -i 's/class=\\\"\\\">%s.0/class=\\\"\\\">%s/g' " + 
+					self.filepath) % (str(label), y_value_in_minutes)
+			os.system(cmd)
 
 	def fix_tooltip(self):
 		"""Changes the SVG file's default mouseover tooltip to no longer contain 
@@ -279,8 +291,10 @@ class Charter:
 		self.chart.render_to_file(self.filepath)
 		# Set the font in the svg file to the font specified during __init__ 
 		self.fix_font()
-		if self.type == 'bar':
-			self.fix_tooltip()
+		if hasattr(self.chart, 'y_labels'):
+			self.fix_tooltip()	
+			for label in self.chart.y_labels:
+				self.convert_y_axis_to_minutes(label)
 
 	def fix_font(self):
 		"""Changes the SVG file's default font (monospace) to the font specified
