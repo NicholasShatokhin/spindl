@@ -16,14 +16,12 @@
 ### END LICENSE
 from pygal import *
 from pygal.style import *
-import time
 import calendar
 from timeFormat import *
 import os
 import operator
 from datetime import timedelta
 from math import ceil
-import subprocess
 
 CONST_MAX_DATA_ENTRIES = 18
 CONST_MAX_VERTICAL_ENTRIES = 20
