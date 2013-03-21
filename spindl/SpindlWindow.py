@@ -116,6 +116,7 @@ class SpindlWindow(Window):
         self.show_combobox = self.builder.get_object("show_combobox")
         self.show_combobox_text = self.builder.get_object("show_combobox_text")
         self.for_combobox = self.builder.get_object("for_combobox") 
+        self.for_liststore = self.builder.get_object("for_liststore")
         self.for_combobox_text = self.builder.get_object("for_combobox_text")
         self.day_entry = self.builder.get_object("day_entry")
         self.month_entry = self.builder.get_object("month_entry")
@@ -234,7 +235,7 @@ class SpindlWindow(Window):
         # Create the chart of type pie
         self.charter.create_chart('pie')
         # Compound data
-        self.charter.compound_other_data()
+        #self.charter.compound_other_data()
         # Load the chart into the webview
         self.charter.load_into_webview(initial=True)
         self.indicator = Indicator(self.indicator_menu, 
@@ -511,7 +512,7 @@ class SpindlWindow(Window):
         print 'Charter Data == ' + str(self.charter.data)
         self.charter.create_chart()
         # Compound data
-        self.charter.compound_other_data()
+        #self.charter.compound_other_data()
         # Load the chart into the webview
         self.charter.load_into_webview()
         # Set the proper entry box as visible 
@@ -543,7 +544,7 @@ class SpindlWindow(Window):
         self.charter.create_chart(span=('day',(0,0,0,day,month,year),
                                         (59,59,23,day,month,year)))
         # Compound data
-        self.charter.compound_other_data()
+        #self.charter.compound_other_data()
         # Load the chart into the webview
         self.charter.load_into_webview()
         # Set the proper time selection boxes as visible
@@ -569,7 +570,7 @@ class SpindlWindow(Window):
                                                     int(month),
                                                     int(year))))
         # Compound data
-        self.charter.compound_other_data()
+        #self.charter.compound_other_data()
         # Load the chart into the webview
         self.charter.load_into_webview()
         # Set the proper time selection boxes as visible
@@ -614,7 +615,7 @@ class SpindlWindow(Window):
         self.charter.create_chart(span=('span',(0,0,0,from_day,from_month,from_year),
                                         (59,59,23,to_day,to_month,to_year)))
         # Compound data
-        self.charter.compound_other_data()
+        #self.charter.compound_other_data()
         # Load the chart into the webview
         self.charter.load_into_webview()
         # Set the proper time selection boxes as visible
@@ -867,9 +868,21 @@ class SpindlWindow(Window):
             self.charter.type = 'pie'
             self.analytics_for_box.set_visible(True)
             #self.refresh_totals_chart()
+            # Clear the options in the for_liststore and enter the options for
+            # the percent of time spent chart.
+            self.for_liststore.clear()
+            for_list = [('All Time',), ('Day',), ('Month',), ('Span of Time',)]
+            for for_entry in for_list:
+                self.for_liststore.append(for_entry)
         elif active_item == 'Amount of Time Spent':
             self.charter.type = 'bar'
             self.analytics_for_box.set_visible(True)
+            # Clear the options in the for_liststore and enter the options for
+            # the amount of time spent chart.
+            self.for_liststore.clear()
+            for_list = [('Day',), ('Month',), ('Span of Time',)]
+            for for_entry in for_list:
+                self.for_liststore.append(for_entry)
         else:
             self.analytics_for_box.set_visible(True)
 

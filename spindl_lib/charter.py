@@ -23,12 +23,12 @@ import operator
 from datetime import timedelta
 from math import ceil
 
-CONST_MAX_DATA_ENTRIES = 18
+CONST_MAX_DATA_ENTRIES = 12
 CONST_MAX_VERTICAL_ENTRIES = 20
-CONST_COLOR_LIST = ['#729fcf', '#ef2929', '#fce94f', '#8ae234', '#ad7fa8', 
+CONST_COLOR_LIST = ('#729fcf', '#ef2929', '#fce94f', '#8ae234', '#ad7fa8', 
 					'#fcaf3e',	'#3465a4', '#cc0000', '#edd400', '#73d216', 
 					'#75507b', '#f57900', '#204a87', '#a40000', '#c4a000', 
-					'#4e9a06', '#5c3566', '#ce5c00', '#d3d7cf']
+					'#4e9a06', '#5c3566', '#ce5c00', '#d3d7cf')
 
 class Charter:
 	def __init__(self, font, filepath, webview):
@@ -72,27 +72,30 @@ class Charter:
 		# add the entry to the data
 		self.data.append((label, time, color))
 
-	def compound_other_data(self):#, data):
+	def compound_other_data(self, data):
 		"""Compounds smallest data entries into 'other' entry"""
 		# This function is necessary to keep legend from growing larger than the 
 		# widget it is contained in.
-		#if len(data) > CONST_MAX_DATA_ENTRIES:
-		#	# Make a copy of the data
-		#	sorted_data = self.data
-		#	# Organize the copy from smallest to largest
-		#	sorted_data.sort(key=operator.itemgetter(1))
-		#	# Add entry ("Other", 0, max_color) to data
-		#	max_color = len(CONST_COLOR_LIST)-1
-		#	data.append("Other", 0, max_color)
-		#	# While there are more data entries than CONST_MAX_DATA_ENTRIES
-		#	while len(sorted_data) > CONST_MAX_DATA_ENTRIES:
-		#		# Add the smallest entry to data the "Other" entry.
-		#		sorted_data[-1][1] += int(sorted_data[0][1])
-		#		# Remove the smallest entry
-		#		sorted_data = sorted_data[1:]
-		#	# Set original data equal to the modified copy
-		#	data = sorted_data
-		pass
+		# Get the sum of all values (the [1] index in the entries)
+		sum_of_values = 0
+		for entry in data:
+			sum_of_values += entry[1]
+		# Set the minimum amount to one percent of the total amount
+		minimum_amount = 0.01 * sum_of_values
+		# Create a list item 'other' and give it a value of 0 and the last color
+		# in the CONST_COLOR_LIST.
+		other = ['Other', 0, len(CONST_COLOR_LIST)-1]
+		entries_to_compound = []
+		entries_compunded = False
+		for entry in data:
+			if entry[1] <= minimum_amount:
+				other[1] += entry[1]
+				entries_to_compound.append(entry)
+				entries_compunded = True
+		for entry in entries_to_compound:
+			del data[data.index(entry)]
+		if entries_compunded:
+			data.append(other)
 
 	def create_chart(self, chart_type=None, span=None):
 		"""Creates a chart of the given type based the data"""
@@ -105,21 +108,6 @@ class Charter:
 	
 	def create_pie_chart(self, data=None, span='all', no=None):
 		"""Creates a pie chart from the the data"""
-		# Data must be organized for day, month, etc. before using
-		# If size has been specified
-		if not self.size == (None, None):
-			self.chart = Pie(style=self.style,
-								print_values=False,
-								fill=True,
-								human_readable=True,
-								include_x_axis=True,
-								width=self.size[0], 
-								height=self.size[1])
-		# If size has not already been specified
-		else:
-			# Let the graph dynamically resize within webview
-			self.chart = Pie(style=self.style, print_values=False, fill=True,
-								human_readable=True, include_x_axis=True)
 		# Create the list of objects to be added to the chart
 		chart_list = []
 		# If the span has been specified, then get the logs only for that time
@@ -130,6 +118,7 @@ class Charter:
 				activity = log[0]
 				log_start = unformat_time(tuple_time(log[1]))
 				log_end = unformat_time(tuple_time(log[2]))
+				color = log[3]
 				minimum = unformat_time(span[1])
 				maximum = unformat_time(span[2])
 				# Add the time and activity to the chart_list.
@@ -145,30 +134,35 @@ class Charter:
 				# If the log is not in the chart_list and it is in the span, add
 				# it to the chart_list.
 				if not in_chart_list and log_time > 0:
-					chart_list.append([activity, log_time])
+					chart_list.append([activity, log_time, color])
 		else:
 			# If span is not specified then the data are totals.
 			# Set the chart_list equal to the total data.
 			for total in data:
-				chart_list.append((total[0], total[2]))
+				chart_list.append((total[0], total[2], total[3]))
 		# Add each entry is the chart_list to the chart	
+		self.sort(chart_list)
+		# Data must be organized for day, month, etc. before using
+		# If size has been specified
+		if not self.size == (None, None):
+			self.chart = Pie(style=self.style,
+								print_values=False,
+								fill=True,
+								human_readable=True,
+								include_x_axis=True,
+								width=self.size[0], 
+								height=self.size[1])
+		# If size has not already been specified
+		else:
+			# Let the graph dynamically resize within webview
+			self.chart = Pie(style=self.style, print_values=False, fill=True,
+								human_readable=True, include_x_axis=True)
 		if not chart_list == []:
 			for entry in chart_list:
 				self.chart.add(entry[0], entry[1])
 
 	def create_bar_chart(self, data, span):
 		"""Creates a bar chart from the the data"""
-		# Data must be organized for day, month, etc. before using
-		# If size has been specified
-		if not self.size == (None, None):
-			self.chart = Bar(style=self.style, y_scale=60.0,
-								print_values=False, include_x_axis=True,
-								width=self.size[0], height=self.size[1])
-		# If size has not already been specified
-		else:
-			# Let the graph dynamically resize within webview
-			self.chart = Bar(style=self.style, print_values=False,
-								include_x_axis=True, y_scale=60.0)
 		# Initialize the chart_list
 		chart_list = []
 		for log in data:
@@ -176,6 +170,7 @@ class Charter:
 			activity = log[0]
 			log_start = unformat_time(tuple_time(log[1]))
 			log_end = unformat_time(tuple_time(log[2]))
+			color = log[3]
 			minimum = span[1]
 			maximum = span[2]	
 			minimum = unformat_time(minimum)
@@ -187,7 +182,19 @@ class Charter:
 					entry[1] += activity_time
 					in_chart_list = True
 			if not in_chart_list and activity_time > 0:
-				chart_list.append([activity, activity_time])
+				chart_list.append([activity, activity_time, color])
+		self.sort(chart_list)
+		# Data must be organized for day, month, etc. before using
+		# If size has been specified
+		if not self.size == (None, None):
+			self.chart = Bar(style=self.style, y_scale=60.0,
+								print_values=False, include_x_axis=True,
+								width=self.size[0], height=self.size[1])
+		# If size has not already been specified
+		else:
+			# Let the graph dynamically resize within webview
+			self.chart = Bar(style=self.style, print_values=False,
+								include_x_axis=True, y_scale=60.0)
 		self.set_y_labels(chart_list)
 		## Add each entry is the chart_list to the chart	
 		if not chart_list == []:
@@ -208,8 +215,8 @@ class Charter:
 			if entry[1] > maximum_time_in_seconds:
 				maximum_time_in_seconds = entry[1]
 		max_number_of_minutes = int(ceil(maximum_time_in_seconds/60))+2
+		y_labels = []
 		if max_number_of_minutes > 2:
-			y_labels = []
 			if max_number_of_minutes < 30:
 				for minute in xrange(max_number_of_minutes+1):
 					y_labels.append(minute*60)
@@ -231,18 +238,29 @@ class Charter:
 			elif max_number_of_minutes >= 960:
 				for minute in xrange((max_number_of_minutes/60)+1):
 					y_labels.append(minute*3600)
-			self.chart.y_labels = y_labels	
+		else:
+			for second in xrange((maximum_time_in_seconds)+1):
+					y_labels.append(second)
+		self.chart.y_labels = y_labels
 
-	def convert_y_axis_to_minutes(self, label):
+	def convert_y_axis_to_time(self, label):
 		"""Converts y axis labels from seconds to minutes"""
-		y_value_in_minutes = ''
-		y_value_in_minutes = str(timedelta(seconds=int(label)))
-		if y_value_in_minutes[1] == ':':
-			y_value_in_minutes = '0' + y_value_in_minutes
+		y_value_in_time = ''
+		y_value_in_time = str(timedelta(seconds=int(label)))
+		if y_value_in_time[1] == ':':
+			y_value_in_time = '0' + y_value_in_time
 		if not self.filepath == None:
-			cmd = ("sed -i 's/class=\\\"\\\">%s.0/class=\\\"\\\">%s/g' " + 
-					self.filepath) % (str(label), y_value_in_minutes)
-			os.system(cmd)
+			convert_y_axis = ("sed -i 's/class=\\\"\\\">%s.0/class=\\\"\\\"" + 
+								">%s/g' " + self.filepath) % (str(label), 
+																y_value_in_time)
+			os.system(convert_y_axis)
+			# Then convert the major y axises (The zeroeth and first amounts) to
+			# a formatted time if the label is a major axis.
+			convert_major_y_axis = ("sed -i 's/class=\\\"major\\\">%s.0/" + 
+									"class=\\\"major\\\">%s/g' " + 
+										self.filepath) % (str(label), 
+															y_value_in_time)
+			os.system(convert_major_y_axis)
 
 	def fix_tooltip(self):
 		"""Changes the SVG file's default mouseover tooltip to no longer contain 
@@ -256,33 +274,47 @@ class Charter:
 		self.data = []
 		self.chart = None
 
-	def sort_data_by_size(self):
+	def sort_data_by_size(self, data):
 		"""Used to sort the pie slices by time from largest to smallest."""
 		# Make a duplicate of the data so it does not get tampered with
-		sorted_data = self.data
+		sorted_data = data
 		# Sort from smallest to largest based on time.
 		sorted_data.sort(key=operator.itemgetter(1))
 		# Then set data as the reverse the sorted data.
-		self.data = sorted_data[::-1]
+		data = sorted_data[::-1]
 
-	def sort_colorlist(self):
+	def sort_colorlist(self, data):
 		"""Used to make the order of the color_list match the order of the 
 			pie_list's activity colors"""
 		# Create an empty list to put the sorted colors in
 		sorted_colorlist = []
 		# Iterate through the chart data
-		for index in xrange (len(self.data)):
+		for entry in data:
 			# Get the specified color from the chart data 
-			color = int(self.data[index][3])
+			color = int(entry[2])
 			# Arrange the colorlist so that the given datum recieves that color
-			sorted_colorlist.append(CONST_COLOR_LIST[color])
+			if color < (len(CONST_COLOR_LIST)-1) or entry[0] == 'Other':
+				sorted_colorlist.append(CONST_COLOR_LIST[color])
+			else:
+				sorted_colorlist.append(CONST_COLOR_LIST[(color-(len(CONST_COLOR_LIST)-1))])
 		# Set the colorlist to the sorted_colorlist
 		self.colorlist = sorted_colorlist
+		if not self.colorlist == []:
+			self.style = Style(background='#F7F6F6',
+						plot_background='#F7F6F6',
+						foreground='#888a85',
+						foreground_light='#888a85',
+						foreground_dark='#555753',
+						opacity='.6',
+						opacity_hover='.9',
+						transition='200ms ease-in',
+							colors=(self.colorlist))
 
-	def sort(self):
+	def sort(self, data):
 		"""Sort the data and colors"""
-		self.sort_data_by_size()
-		self.sort_colorlist()
+		self.compound_other_data(data)
+		self.sort_data_by_size(data)
+		self.sort_colorlist(data)
 
 	def send_to_svg(self):
 		"""Send the prepared pie graph to an SVG file"""
@@ -292,7 +324,7 @@ class Charter:
 		if hasattr(self.chart, 'y_labels'):
 			self.fix_tooltip()	
 			for label in self.chart.y_labels:
-				self.convert_y_axis_to_minutes(label)
+				self.convert_y_axis_to_time(label)
 
 	def fix_font(self):
 		"""Changes the SVG file's default font (monospace) to the font specified
@@ -303,7 +335,7 @@ class Charter:
 
 	def load_into_webview(self, initial=False):
 		"""Load the SVG file for the chart into the webview"""
-		self.sort()
+		#self.sort()
 		self.send_to_svg()
 		if initial:
 			self.webview.open(self.filepath)
