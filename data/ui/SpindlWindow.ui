@@ -4,6 +4,16 @@
   <!-- interface-requires spindl_window 1.0 -->
   <!-- interface-local-resource-path ../media -->
   <object class="GtkAction" id="action1"/>
+  <object class="GtkEntryCompletion" id="entrycompletion2">
+    <property name="model">total_treestore</property>
+    <property name="minimum_key_length">3</property>
+    <property name="text_column">0</property>
+    <property name="inline_completion">True</property>
+    <property name="popup_completion">False</property>
+    <property name="popup_set_width">False</property>
+    <property name="popup_single_match">False</property>
+    <property name="inline_selection">True</property>
+  </object>
   <object class="GtkListStore" id="color_liststore">
     <columns>
       <!-- column-name Color -->
@@ -20,16 +30,6 @@
     <property name="page_increment">10</property>
   </object>
   <object class="GtkEntryCompletion" id="entrycompletion1">
-    <property name="model">total_treestore</property>
-    <property name="minimum_key_length">3</property>
-    <property name="text_column">0</property>
-    <property name="inline_completion">True</property>
-    <property name="popup_completion">False</property>
-    <property name="popup_set_width">False</property>
-    <property name="popup_single_match">False</property>
-    <property name="inline_selection">True</property>
-  </object>
-  <object class="GtkEntryCompletion" id="entrycompletion2">
     <property name="model">total_treestore</property>
     <property name="minimum_key_length">3</property>
     <property name="text_column">0</property>
@@ -447,51 +447,6 @@
         <col id="0" translatable="yes">Amount of Time Spent</col>
       </row>
     </data>
-  </object>
-  <object class="GtkLabel" id="start_time_column_header_label">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="label" translatable="yes">Start Time</property>
-    <attributes>
-      <attribute name="font-desc" value="Ubuntu 9"/>
-      <attribute name="foreground" value="#88888a8a8585"/>
-    </attributes>
-  </object>
-  <object class="GtkLabel" id="stop_time_column_header_label">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="label" translatable="yes">Stop Time</property>
-    <attributes>
-      <attribute name="font-desc" value="Ubuntu 9"/>
-      <attribute name="foreground" value="#88888a8a8585"/>
-    </attributes>
-  </object>
-  <object class="GtkLabel" id="time_radiobutton_label">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="label" translatable="yes">Show Time</property>
-    <attributes>
-      <attribute name="font-desc" value="Ubuntu 10"/>
-      <attribute name="foreground" value="#88888a8a8585"/>
-    </attributes>
-  </object>
-  <object class="GtkLabel" id="time_today_column_header_label">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="label" translatable="yes">Time Spent Today</property>
-    <attributes>
-      <attribute name="font-desc" value="Ubuntu 9"/>
-      <attribute name="foreground" value="#88888a8a8585"/>
-    </attributes>
-  </object>
-  <object class="GtkLabel" id="time_total_column_header_label">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="label" translatable="yes">Total Time Spent</property>
-    <attributes>
-      <attribute name="font-desc" value="Ubuntu 9"/>
-      <attribute name="foreground" value="#88888a8a8585"/>
-    </attributes>
   </object>
   <object class="SpindlWindow" id="spindl_window">
     <property name="width_request">600</property>
@@ -1427,15 +1382,99 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkScrolledWindow" id="webview_scrolledwindow">
+                      <object class="GtkBox" id="box4">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="hexpand">True</property>
-                        <property name="vexpand">True</property>
-                        <property name="hscrollbar_policy">never</property>
-                        <property name="vscrollbar_policy">never</property>
+                        <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
                         <child>
-                          <placeholder/>
+                          <object class="GtkScrolledWindow" id="webview_scrolledwindow">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="margin_top">5</property>
+                            <property name="hexpand">True</property>
+                            <property name="vexpand">True</property>
+                            <property name="hscrollbar_policy">never</property>
+                            <property name="vscrollbar_policy">never</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkTreeView" id="trends_treeview">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="model">trends_treestore</property>
+                            <property name="headers_clickable">False</property>
+                            <child internal-child="selection">
+                              <object class="GtkTreeSelection" id="treeview-selection3"/>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn" id="activity_trend_column">
+                                <property name="title" translatable="yes">Activity</property>
+                                <child>
+                                  <object class="GtkCellRendererText" id="activity_trend_cellrenderertext"/>
+                                  <attributes>
+                                    <attribute name="text">0</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn" id="trend_image_column">
+                                <property name="sizing">fixed</property>
+                                <property name="fixed_width">32</property>
+                                <property name="title" translatable="yes">Trend Image</property>
+                                <child>
+                                  <object class="GtkCellRendererPixbuf" id="trend_image_pixbuf"/>
+                                  <attributes>
+                                    <attribute name="pixbuf">1</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn" id="percent_change_column">
+                                <property name="sizing">fixed</property>
+                                <property name="title" translatable="yes">Percent Change</property>
+                                <child>
+                                  <object class="GtkCellRendererText" id="percent_change_cellrenderertext"/>
+                                  <attributes>
+                                    <attribute name="text">2</attribute>
+                                    <attribute name="width-chars">6</attribute>
+                                    <attribute name="max-width-chars">6</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSpinner" id="spinner">
+                            <property name="width_request">64</property>
+                            <property name="height_request">64</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="halign">center</property>
+                            <property name="valign">center</property>
+                            <property name="hexpand">True</property>
+                            <property name="vexpand">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -1558,6 +1597,51 @@
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkLabel" id="start_time_column_header_label">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="label" translatable="yes">Start Time</property>
+    <attributes>
+      <attribute name="font-desc" value="Ubuntu 9"/>
+      <attribute name="foreground" value="#88888a8a8585"/>
+    </attributes>
+  </object>
+  <object class="GtkLabel" id="stop_time_column_header_label">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="label" translatable="yes">Stop Time</property>
+    <attributes>
+      <attribute name="font-desc" value="Ubuntu 9"/>
+      <attribute name="foreground" value="#88888a8a8585"/>
+    </attributes>
+  </object>
+  <object class="GtkLabel" id="time_radiobutton_label">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="label" translatable="yes">Show Time</property>
+    <attributes>
+      <attribute name="font-desc" value="Ubuntu 10"/>
+      <attribute name="foreground" value="#88888a8a8585"/>
+    </attributes>
+  </object>
+  <object class="GtkLabel" id="time_today_column_header_label">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="label" translatable="yes">Time Spent Today</property>
+    <attributes>
+      <attribute name="font-desc" value="Ubuntu 9"/>
+      <attribute name="foreground" value="#88888a8a8585"/>
+    </attributes>
+  </object>
+  <object class="GtkLabel" id="time_total_column_header_label">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="label" translatable="yes">Total Time Spent</property>
+    <attributes>
+      <attribute name="font-desc" value="Ubuntu 9"/>
+      <attribute name="foreground" value="#88888a8a8585"/>
+    </attributes>
   </object>
   <object class="GtkBox" id="timer_box">
     <property name="visible">True</property>
@@ -1712,5 +1796,14 @@
       </object>
     </child>
   </object>
-  <object class="GtkTreeStore" id="treestore1"/>
+  <object class="GtkTreeStore" id="trends_treestore">
+    <columns>
+      <!-- column-name Activity -->
+      <column type="gchararray"/>
+      <!-- column-name Trend_Image -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name Percent_Change -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
 </interface>

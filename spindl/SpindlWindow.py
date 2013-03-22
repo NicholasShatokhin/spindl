@@ -23,6 +23,7 @@ logger = logging.getLogger('spindl')
 from spindl_lib.filer import Filer
 from spindl_lib.timer import Timer
 from spindl_lib.charter import Charter
+from spindl_lib.trendView import TrendView
 from spindl_lib.unityIndicator import Indicator
 from spindl_lib.toolbarFormat import *
 from spindl_lib.comboboxFormat import *
@@ -98,7 +99,6 @@ class SpindlWindow(Window):
         self.value_column_child_text = self.builder.get_object("value_column_child_text")
         self.activity_column_child_text = self.builder.get_object("activity_column_child_text")
 
-
         self.webview_scrolledwindow = self.builder.get_object("webview_scrolledwindow")
         self.webview = WebKit.WebView()
         self.webview_scrolledwindow.add(self.webview)
@@ -136,6 +136,12 @@ class SpindlWindow(Window):
         self.month_entry = self.builder.get_object("month_entry")
         self.from_entry = self.builder.get_object("from_entry")
         self.to_entry = self.builder.get_object("to_entry")
+        self.trends_treeview = self.builder.get_object("trends_treeview")
+        self.trends_treestore = self.builder.get_object("trends_treestore")
+        self.activity_trend_cellrenderedtext = self.builder.get_object("activity_trend_cellrenderedtext")
+        self.trend_image_pixbuf = self.builder.get_object("trend_image_pixbuf")
+        self.percent_change_cellrenderedtext = self.builder.get_object("percent_change_cellrenderedtext")
+        self.spinner = self.builder.get_object("spinner")
         # Initialize the Set Activity Window and its components
         self.set_activity_window = self.builder.get_object("set_activity_window")
         self.set_activity_box = self.builder.get_object("set_activity_box")
@@ -229,7 +235,14 @@ class SpindlWindow(Window):
         # Initialize the timer, filer, pieGrapher, and indicator objects
         self.timer = Timer(self.timer_label, self.timer_indicator) 
         self.filer = Filer(CONST_DB_FILE_PATH)
-        self.charter = Charter('ubuntu', CONST_CHART_PATH, self.webview)
+        self.charter = Charter('ubuntu', CONST_CHART_PATH, self.webview, 
+                                self.webview_scrolledwindow, self.spinner)
+
+
+        self.trendView = TrendView(self.trends_treeview, self.trends_treestore, 
+                                    self.activity_trend_cellrenderedtext,  
+                                    self.trend_image_pixbuf,
+                                    self.percent_change_cellrenderedtext)
         # Set the data
         self.charter.data = []#('Activity', 100, 0), ('Things', 25, 1), ('Stuff', 25, 2), ('Cool', 10, 3)]
         # Create the chart of type pie
@@ -885,6 +898,10 @@ class SpindlWindow(Window):
                 self.for_liststore.append(for_entry)
         else:
             self.analytics_for_box.set_visible(True)
+        self.analytics_day_box.set_visible(False)
+        self.analytics_month_box.set_visible(False)
+        self.analytics_from_box.set_visible(False)
+        self.analytics_to_box.set_visible(False)
 
     def on_for_combobox_changed(self, user_data):
         """Called when the user specifies a time for analytics in the 'For'

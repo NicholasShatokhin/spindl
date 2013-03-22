@@ -22,8 +22,9 @@ import os
 import operator
 from datetime import timedelta
 from math import ceil
+from gi.repository import GLib
 
-CONST_MAX_DATA_ENTRIES = 12
+CONST_MAX_DATA_ENTRIES = 15
 CONST_MAX_VERTICAL_ENTRIES = 20
 CONST_COLOR_LIST = ('#729fcf', '#ef2929', '#fce94f', '#8ae234', '#ad7fa8', 
 					'#fcaf3e',	'#3465a4', '#cc0000', '#edd400', '#73d216', 
@@ -31,12 +32,16 @@ CONST_COLOR_LIST = ('#729fcf', '#ef2929', '#fce94f', '#8ae234', '#ad7fa8',
 					'#4e9a06', '#5c3566', '#ce5c00', '#d3d7cf')
 
 class Charter:
-	def __init__(self, font, filepath, webview):
+	def __init__(self, font, filepath, webview, webview_window, 
+					loading_spinner):
 		self.font = font
 		self.filepath = filepath
 		self.webview = webview
 		# Turn off the right click menu for the webview
 		self.webview.props.settings.props.enable_default_context_menu = False
+		self.webview_window = webview_window
+		self.loading_spinner = loading_spinner
+		self.loading_spinner.set_visible(False)
 		self.data = []
 		self.type = None
 		# Size is a tuple of (width, height)
@@ -84,7 +89,7 @@ class Charter:
 		minimum_amount = 0.01 * sum_of_values
 		# Create a list item 'other' and give it a value of 0 and the last color
 		# in the CONST_COLOR_LIST.
-		other = ['Other', 0, len(CONST_COLOR_LIST)-1]
+		other = ['Other ', 0, len(CONST_COLOR_LIST)-1]
 		entries_to_compound = []
 		entries_compunded = False
 		for entry in data:
@@ -93,7 +98,18 @@ class Charter:
 				entries_to_compound.append(entry)
 				entries_compunded = True
 		for entry in entries_to_compound:
-			del data[data.index(entry)]
+			del data[data.index(entry)]	
+		# If the data still has too many entries, compound the smallest into the
+		# 'Other' entry
+		if len(data) > CONST_MAX_DATA_ENTRIES:
+			self.sort_data_by_size(data)
+			entries_to_compound = []
+			for entry in xrange((len(data) - CONST_MAX_DATA_ENTRIES)):
+				other[1] += data[entry][1]
+				entries_to_compound.append(data[entry])
+				entries_compunded = True
+			for entry in entries_to_compound:
+				del data[data.index(entry)]
 		if entries_compunded:
 			data.append(other)
 
@@ -280,8 +296,12 @@ class Charter:
 		sorted_data = data
 		# Sort from smallest to largest based on time.
 		sorted_data.sort(key=operator.itemgetter(1))
-		# Then set data as the reverse the sorted data.
-		data = sorted_data[::-1]
+		# Make sure that the Other entry is at the end of the list if it exists
+		for entry in sorted_data:
+			if entry[0] == 'Other ':
+				sorted_data.insert(0,sorted_data.pop(sorted_data.index(entry)))
+		# Then set data as the sorted data.
+		data = sorted_data#[::-1]
 
 	def sort_colorlist(self, data):
 		"""Used to make the order of the color_list match the order of the 
@@ -293,7 +313,7 @@ class Charter:
 			# Get the specified color from the chart data 
 			color = int(entry[2])
 			# Arrange the colorlist so that the given datum recieves that color
-			if color < (len(CONST_COLOR_LIST)-1) or entry[0] == 'Other':
+			if color < (len(CONST_COLOR_LIST)-1) or entry[0] == 'Other ':
 				sorted_colorlist.append(CONST_COLOR_LIST[color])
 			else:
 				sorted_colorlist.append(CONST_COLOR_LIST[(color-(len(CONST_COLOR_LIST)-1))])
@@ -312,9 +332,10 @@ class Charter:
 
 	def sort(self, data):
 		"""Sort the data and colors"""
-		self.compound_other_data(data)
-		self.sort_data_by_size(data)
-		self.sort_colorlist(data)
+		if not data == []:
+			self.compound_other_data(data)
+			self.sort_data_by_size(data)
+			self.sort_colorlist(data)
 
 	def send_to_svg(self):
 		"""Send the prepared pie graph to an SVG file"""
@@ -333,6 +354,18 @@ class Charter:
 			os.system(("sed -i 's/font-family:monospace/font-family:" + self.font 
 						+ "/g' " + self.filepath))
 
+	def start_loading_animation(self):      
+        GLib.timeout_add(500, self.get_loading_animation)
+	
+	def get_loading_animation(self):
+        chart_loading = not (str(self.webview.get_load_status()) == '<enum WEBKIT_LOAD_FAILED of type WebKitLoadStatus>' 
+                    or str(self.webview.get_load_status()) == '<enum WEBKIT_LOAD_FINISHED of type WebKitLoadStatus>')
+        if not chart_loading:
+            self.loading_spinner.stop()
+            self.loading_spinner.set_visible(False)
+            self.webview_window.set_visible(True)
+        return chart_loading       
+
 	def load_into_webview(self, initial=False):
 		"""Load the SVG file for the chart into the webview"""
 		#self.sort()
@@ -341,3 +374,7 @@ class Charter:
 			self.webview.open(self.filepath)
 		else:
 			self.webview.reload()
+			self.webview_window.set_visible(False)
+			self.loading_spinner.set_visible(True)
+			self.loading_spinner.start()
+			self.start_loading_animation()
