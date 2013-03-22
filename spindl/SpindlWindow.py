@@ -93,11 +93,11 @@ class SpindlWindow(Window):
         self.stop_time_column_child_text = self.builder.get_object("stop_time_column_child_text")
         # Initialize widgets in the Analytics tab
         # Initialize the color_liststore and the color_treeview 
-        self.color_liststore = self.builder.get_object("color_liststore")
-        self.color_column = self.builder.get_object("color_column")        
-        self.color_column_child_pixbuf = self.builder.get_object("color_column_child_pixbuf")
-        self.value_column_child_text = self.builder.get_object("value_column_child_text")
-        self.activity_column_child_text = self.builder.get_object("activity_column_child_text")
+        #self.color_liststore = self.builder.get_object("color_liststore")
+        #self.color_column = self.builder.get_object("color_column")        
+        #self.color_column_child_pixbuf = self.builder.get_object("color_column_child_pixbuf")
+        #self.value_column_child_text = self.builder.get_object("value_column_child_text")
+        #self.activity_column_child_text = self.builder.get_object("activity_column_child_text")
 
         self.webview_scrolledwindow = self.builder.get_object("webview_scrolledwindow")
         self.webview = WebKit.WebView()
@@ -136,11 +136,11 @@ class SpindlWindow(Window):
         self.month_entry = self.builder.get_object("month_entry")
         self.from_entry = self.builder.get_object("from_entry")
         self.to_entry = self.builder.get_object("to_entry")
-        self.trends_treeview = self.builder.get_object("trends_treeview")
+        self.trendview_scrolledwindow = self.builder.get_object("trendview_scrolledwindow")
         self.trends_treestore = self.builder.get_object("trends_treestore")
-        self.activity_trend_cellrenderedtext = self.builder.get_object("activity_trend_cellrenderedtext")
+        self.activity_trend_cellrenderertext = self.builder.get_object("activity_trend_cellrenderertext")
         self.trend_image_pixbuf = self.builder.get_object("trend_image_pixbuf")
-        self.percent_change_cellrenderedtext = self.builder.get_object("percent_change_cellrenderedtext")
+        self.percent_change_cellrenderertext = self.builder.get_object("percent_change_cellrenderertext")
         self.spinner = self.builder.get_object("spinner")
         # Initialize the Set Activity Window and its components
         self.set_activity_window = self.builder.get_object("set_activity_window")
@@ -238,11 +238,12 @@ class SpindlWindow(Window):
         self.charter = Charter('ubuntu', CONST_CHART_PATH, self.webview, 
                                 self.webview_scrolledwindow, self.spinner)
 
-
-        self.trendView = TrendView(self.trends_treeview, self.trends_treestore, 
-                                    self.activity_trend_cellrenderedtext,  
+        self.trendView = TrendView(self.trendview_scrolledwindow, self.trends_treestore, 
+                                    self.activity_trend_cellrenderertext,  
                                     self.trend_image_pixbuf,
-                                    self.percent_change_cellrenderedtext)
+                                    self.percent_change_cellrenderertext,
+                                    'data/media/')
+        self.trendView.set_visible(False)
         # Set the data
         self.charter.data = []#('Activity', 100, 0), ('Things', 25, 1), ('Stuff', 25, 2), ('Cool', 10, 3)]
         # Create the chart of type pie
@@ -540,7 +541,8 @@ class SpindlWindow(Window):
             reflect that date"""
         # Clear the pieGraph
         self.charter.clear()
-        self.charter.data = self.filer.read_log('*')
+        if self.charter.visible:
+            self.charter.data = self.filer.read_log('*')
         month = self.day_entry.get_text()[0:2]
         if month[1] == '/':
             month = month[0]
@@ -571,7 +573,8 @@ class SpindlWindow(Window):
         """Called to get the date from the month_entry and redraw the graph to 
             reflect that date"""
         self.charter.clear()
-        self.charter.data = self.filer.read_log('*')
+        if self.charter.visible:
+            self.charter.data = self.filer.read_log('*')
         month = self.month_entry.get_text()[0:2]
         if month[1] == '/':
             month = month[0]
@@ -598,7 +601,8 @@ class SpindlWindow(Window):
         reflect that date"""
         # Clear the pieGraph
         self.charter.clear()
-        self.charter.data = self.filer.read_log('*')
+        if self.charter.visible:
+            self.charter.data = self.filer.read_log('*')
         from_month = self.from_entry.get_text()[0:2]
         if from_month[1] == '/':
             from_month = from_month[0]
@@ -887,6 +891,9 @@ class SpindlWindow(Window):
             for_list = [('All Time',), ('Day',), ('Month',), ('Span of Time',)]
             for for_entry in for_list:
                 self.for_liststore.append(for_entry)
+            self.trendView.set_visible(False)
+            if not self.charter.visible:
+                self.charter.set_visible(True)
         elif active_item == 'Amount of Time Spent':
             self.charter.type = 'bar'
             self.analytics_for_box.set_visible(True)
@@ -896,8 +903,17 @@ class SpindlWindow(Window):
             for_list = [('Day',), ('Month',), ('Span of Time',)]
             for for_entry in for_list:
                 self.for_liststore.append(for_entry)
+            self.trendView.set_visible(False)
+            if not self.charter.visible:
+                self.charter.set_visible(True)
         else:
+            self.for_liststore.clear()
+            for_list = [('Day',), ('Month',), ('Span of Time',)]
+            for for_entry in for_list:
+                self.for_liststore.append(for_entry)
             self.analytics_for_box.set_visible(True)
+            self.trendView.set_visible(True)
+            self.charter.set_visible(False)
         self.analytics_day_box.set_visible(False)
         self.analytics_month_box.set_visible(False)
         self.analytics_from_box.set_visible(False)

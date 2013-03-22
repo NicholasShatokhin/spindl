@@ -62,6 +62,7 @@ class Charter:
 							opacity_hover='.9',
 							transition='200ms ease-in',
 	  						colors=(self.colorlist))
+		self.visible = True
 
 	def add_entry(self, label, time, color):
 		"""Adds an entry to data and gives it a label, time, and color"""
@@ -358,13 +359,16 @@ class Charter:
         GLib.timeout_add(500, self.get_loading_animation)
 	
 	def get_loading_animation(self):
-        chart_loading = not (str(self.webview.get_load_status()) == '<enum WEBKIT_LOAD_FAILED of type WebKitLoadStatus>' 
-                    or str(self.webview.get_load_status()) == '<enum WEBKIT_LOAD_FINISHED of type WebKitLoadStatus>')
-        if not chart_loading:
-            self.loading_spinner.stop()
-            self.loading_spinner.set_visible(False)
-            self.webview_window.set_visible(True)
-        return chart_loading       
+		if self.visible:
+	        chart_loading = not (str(self.webview.get_load_status()) == '<enum WEBKIT_LOAD_FAILED of type WebKitLoadStatus>' 
+	                    or str(self.webview.get_load_status()) == '<enum WEBKIT_LOAD_FINISHED of type WebKitLoadStatus>')
+	        if not chart_loading:
+	            self.loading_spinner.stop()
+	            self.loading_spinner.set_visible(False)
+	            self.webview_window.set_visible(True)
+	        return chart_loading
+	    else:
+	    	return False       
 
 	def load_into_webview(self, initial=False):
 		"""Load the SVG file for the chart into the webview"""
@@ -374,7 +378,14 @@ class Charter:
 			self.webview.open(self.filepath)
 		else:
 			self.webview.reload()
-			self.webview_window.set_visible(False)
-			self.loading_spinner.set_visible(True)
-			self.loading_spinner.start()
-			self.start_loading_animation()
+			if self.visible:
+				self.webview_window.set_visible(False)
+				self.loading_spinner.set_visible(True)
+				self.loading_spinner.start()
+				self.start_loading_animation()
+
+	def set_visible(self, visible=True):
+		self.visible = visible
+		self.webview_window.set_visible(visible)
+		if not visible:
+			self.loading_spinner.set_visible(False)

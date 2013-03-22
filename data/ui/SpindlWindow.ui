@@ -14,16 +14,6 @@
     <property name="popup_single_match">False</property>
     <property name="inline_selection">True</property>
   </object>
-  <object class="GtkListStore" id="color_liststore">
-    <columns>
-      <!-- column-name Color -->
-      <column type="GdkPixbuf"/>
-      <!-- column-name Activity -->
-      <column type="gchararray"/>
-      <!-- column-name Value -->
-      <column type="gchararray"/>
-    </columns>
-  </object>
   <object class="GtkAdjustment" id="day_adjustment">
     <property name="lower">-10000</property>
     <property name="step_increment">1</property>
@@ -103,6 +93,15 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">add.png</property>
+  </object>
+  <object class="GtkLabel" id="label2">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="label" translatable="yes">Activity</property>
+    <attributes>
+      <attribute name="font-desc" value="Ubuntu 10"/>
+      <attribute name="foreground" value="#88888a8a8585"/>
+    </attributes>
   </object>
   <object class="GtkMenu" id="indicator_menu">
     <property name="visible">True</property>
@@ -276,6 +275,15 @@
       </object>
     </child>
   </object>
+  <object class="GtkLabel" id="label5">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="label" translatable="yes">Trend</property>
+    <attributes>
+      <attribute name="font-desc" value="Ubuntu 10"/>
+      <attribute name="foreground" value="#88888a8a8585"/>
+    </attributes>
+  </object>
   <object class="GtkLabel" id="log_activity_column_header_label">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -445,6 +453,9 @@
       </row>
       <row>
         <col id="0" translatable="yes">Amount of Time Spent</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Activity Trends</col>
       </row>
     </data>
   </object>
@@ -816,6 +827,7 @@
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
                     <property name="can_focus">False</property>
+                    <property name="margin_top">1</property>
                     <property name="xpad">20</property>
                     <property name="label" translatable="yes">Totals</property>
                     <attributes>
@@ -834,10 +846,9 @@
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkBox" id="box5">
-                        <property name="width_request">162</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="margin_left">3</property>
+                        <property name="margin_left">2</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkBox" id="analytics_show_box">
@@ -1406,60 +1417,6 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkTreeView" id="trends_treeview">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="model">trends_treestore</property>
-                            <property name="headers_clickable">False</property>
-                            <child internal-child="selection">
-                              <object class="GtkTreeSelection" id="treeview-selection3"/>
-                            </child>
-                            <child>
-                              <object class="GtkTreeViewColumn" id="activity_trend_column">
-                                <property name="title" translatable="yes">Activity</property>
-                                <child>
-                                  <object class="GtkCellRendererText" id="activity_trend_cellrenderertext"/>
-                                  <attributes>
-                                    <attribute name="text">0</attribute>
-                                  </attributes>
-                                </child>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkTreeViewColumn" id="trend_image_column">
-                                <property name="sizing">fixed</property>
-                                <property name="fixed_width">32</property>
-                                <property name="title" translatable="yes">Trend Image</property>
-                                <child>
-                                  <object class="GtkCellRendererPixbuf" id="trend_image_pixbuf"/>
-                                  <attributes>
-                                    <attribute name="pixbuf">1</attribute>
-                                  </attributes>
-                                </child>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkTreeViewColumn" id="percent_change_column">
-                                <property name="sizing">fixed</property>
-                                <property name="title" translatable="yes">Percent Change</property>
-                                <child>
-                                  <object class="GtkCellRendererText" id="percent_change_cellrenderertext"/>
-                                  <attributes>
-                                    <attribute name="text">2</attribute>
-                                    <attribute name="width-chars">6</attribute>
-                                    <attribute name="max-width-chars">6</attribute>
-                                  </attributes>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                        <child>
                           <object class="GtkSpinner" id="spinner">
                             <property name="width_request">64</property>
                             <property name="height_request">64</property>
@@ -1469,6 +1426,62 @@
                             <property name="valign">center</property>
                             <property name="hexpand">True</property>
                             <property name="vexpand">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkScrolledWindow" id="trendview_scrolledwindow">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <child>
+                              <object class="GtkTreeView" id="trends_treeview">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="valign">start</property>
+                                <property name="model">trends_treestore</property>
+                                <property name="headers_clickable">False</property>
+                                <property name="search_column">0</property>
+                                <child internal-child="selection">
+                                  <object class="GtkTreeSelection" id="treeview-selection3"/>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn" id="activity_trend_column">
+                                    <property name="title" translatable="yes">Activity</property>
+                                    <property name="expand">True</property>
+                                    <property name="widget">label2</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="activity_trend_cellrenderertext"/>
+                                      <attributes>
+                                        <attribute name="text">0</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn" id="trend_image_column">
+                                    <property name="min_width">97</property>
+                                    <property name="title" translatable="yes">Trend Image</property>
+                                    <property name="widget">label5</property>
+                                    <child>
+                                      <object class="GtkCellRendererPixbuf" id="trend_image_pixbuf"/>
+                                      <attributes>
+                                        <attribute name="pixbuf">1</attribute>
+                                      </attributes>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="percent_change_cellrenderertext"/>
+                                      <attributes>
+                                        <attribute name="text">2</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
                           </object>
                           <packing>
                             <property name="expand">True</property>
