@@ -515,20 +515,21 @@ class SpindlWindow(Window):
 
     def refresh_totals_chart(self):
         """Called when the user selects 'Totals' show combobox"""
-        # Clear the pieGraph
-        self.charter.clear()
-        # Update the current date in the timer
-        self.timer.update_current_date()
-        # Set the chart data to reflect the current data
-        self.charter.data = self.filer.read_total(self.timer.current_date)
-        #self.charter.data = self.filer.read_log('*')
-        # Create the chart of type pie
-        print 'Charter Data == ' + str(self.charter.data)
-        self.charter.create_chart()
-        # Compound data
-        #self.charter.compound_other_data()
-        # Load the chart into the webview
-        self.charter.load_into_webview()
+        if self.charter.visible:
+            # Clear the pieGraph
+            self.charter.clear()
+            # Update the current date in the timer
+            self.timer.update_current_date()
+            # Set the chart data to reflect the current data
+            self.charter.data = self.filer.read_total(self.timer.current_date)
+            #self.charter.data = self.filer.read_log('*')
+            # Create the chart of type pie
+            print 'Charter Data == ' + str(self.charter.data)
+            self.charter.create_chart()
+            # Compound data
+            #self.charter.compound_other_data()
+            # Load the chart into the webview
+            self.charter.load_into_webview()
         # Set the proper entry box as visible 
         self.analytics_day_box.set_visible(False)
         self.analytics_month_box.set_visible(False)
@@ -539,10 +540,6 @@ class SpindlWindow(Window):
     def refresh_day_chart(self):
         """Called to get the date from the day_entry and redraw the graph to 
             reflect that date"""
-        # Clear the pieGraph
-        self.charter.clear()
-        if self.charter.visible:
-            self.charter.data = self.filer.read_log('*')
         month = self.day_entry.get_text()[0:2]
         if month[1] == '/':
             month = month[0]
@@ -555,13 +552,22 @@ class SpindlWindow(Window):
                     day = day[0]
         # Get the year selected in the entry
         year = self.day_entry.get_text()[-4:]
-        # Create the chart of type pie
-        self.charter.create_chart(span=('day',(0,0,0,day,month,year),
-                                        (59,59,23,day,month,year)))
-        # Compound data
-        #self.charter.compound_other_data()
-        # Load the chart into the webview
-        self.charter.load_into_webview()
+        if self.charter.visible:
+            # Clear the pieGraph
+            self.charter.clear()
+            self.charter.data = self.filer.read_log('*')
+            # Create the chart of type pie
+            self.charter.create_chart(span=('day',(0,0,0,day,month,year),
+                                            (59,59,23,day,month,year)))
+            # Compound data
+            #self.charter.compound_other_data()
+            # Load the chart into the webview
+            self.charter.load_into_webview()
+        elif self.trendView.visible:
+            self.trendView.clear()
+            self.trendView.data = self.filer.read_log('*')
+            self.trendView.generate_day_trends((day, month, year))
+            self.trendView.load_into_treeview_window()
         # Set the proper time selection boxes as visible
         self.analytics_day_box.set_visible(True)
         self.analytics_month_box.set_visible(False)
@@ -572,23 +578,29 @@ class SpindlWindow(Window):
     def refresh_month_chart(self):
         """Called to get the date from the month_entry and redraw the graph to 
             reflect that date"""
-        self.charter.clear()
-        if self.charter.visible:
-            self.charter.data = self.filer.read_log('*')
         month = self.month_entry.get_text()[0:2]
         if month[1] == '/':
             month = month[0]
+        month = int(month)
+        day = calendar.mdays[int(month)]
         # Get the year selected in the entry
-        year = self.month_entry.get_text()[-4:]
-        # Create the chart of type pie
-        self.charter.create_chart(span=('month',(0,0,0,1,month,year),
-                                        (59,59,23,calendar.mdays[int(month)],
-                                                    int(month),
-                                                    int(year))))
-        # Compound data
-        #self.charter.compound_other_data()
-        # Load the chart into the webview
-        self.charter.load_into_webview()
+        year = int(self.month_entry.get_text()[-4:])
+        if self.charter.visible:
+            self.charter.clear()
+            self.charter.data = self.filer.read_log('*')
+            # Create the chart of type pie
+            self.charter.create_chart(span=('month',(0,0,0,1,month,year),
+                                            (59,59,23,day, int(month),
+                                                            int(year))))
+            # Compound data
+            #self.charter.compound_other_data()
+            # Load the chart into the webview
+            self.charter.load_into_webview()
+        elif self.trendView.visible:
+            self.trendView.clear()
+            self.trendView.data = self.filer.read_log('*')
+            self.trendView.generate_month_trends((day, month, year))
+            self.trendView.load_into_treeview_window()
         # Set the proper time selection boxes as visible
         self.analytics_day_box.set_visible(False)
         self.analytics_month_box.set_visible(True)
@@ -599,10 +611,6 @@ class SpindlWindow(Window):
     def refresh_span_chart(self):
         """Called to get the date from the span_entry and redraw the graph to 
         reflect that date"""
-        # Clear the pieGraph
-        self.charter.clear()
-        if self.charter.visible:
-            self.charter.data = self.filer.read_log('*')
         from_month = self.from_entry.get_text()[0:2]
         if from_month[1] == '/':
             from_month = from_month[0]
@@ -628,13 +636,24 @@ class SpindlWindow(Window):
                     to_day = to_day[0]
         # Get the year selected in the entry
         to_year = self.to_entry.get_text()[-4:]
-        # Create the chart of type pie
-        self.charter.create_chart(span=('span',(0,0,0,from_day,from_month,from_year),
-                                        (59,59,23,to_day,to_month,to_year)))
-        # Compound data
-        #self.charter.compound_other_data()
-        # Load the chart into the webview
-        self.charter.load_into_webview()
+        if self.charter.visible:
+            # Clear the pieGraph
+            self.charter.clear()
+            self.charter.data = self.filer.read_log('*')
+            # Create the chart of type pie
+            self.charter.create_chart(span=('span',(0,0,0,from_day,from_month,from_year),
+                                            (59,59,23,to_day,to_month,to_year)))
+            # Compound data
+            #self.charter.compound_other_data()
+            # Load the chart into the webview
+            self.charter.load_into_webview()
+        #elif self.trendView.visible:
+        #    self.trendView.clear()
+        #    self.trendView.data = self.filer.read_log('*')
+        #    self.trendView.generate_span_trends((from_day, from_month, 
+        #                                            from_year), (to_day, 
+        #                                            to_month, to_year))
+        #    self.trendView.load_into_treeview_window()
         # Set the proper time selection boxes as visible
         self.analytics_day_box.set_visible(False)
         self.analytics_month_box.set_visible(False)
@@ -914,6 +933,9 @@ class SpindlWindow(Window):
             self.analytics_for_box.set_visible(True)
             self.trendView.set_visible(True)
             self.charter.set_visible(False)
+            self.trendView.data = self.filer.read_log('*')
+            self.trendView.generate_day_trends((8,2,2013))
+            self.trendView.load_into_treeview_window()
         self.analytics_day_box.set_visible(False)
         self.analytics_month_box.set_visible(False)
         self.analytics_from_box.set_visible(False)

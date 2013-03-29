@@ -16,7 +16,6 @@
 ### END LICENSE
 from pygal import *
 from pygal.style import *
-import calendar
 from timeFormat import *
 import os
 import operator
@@ -98,8 +97,10 @@ class Charter:
 				other[1] += entry[1]
 				entries_to_compound.append(entry)
 				entries_compunded = True
-		for entry in entries_to_compound:
-			del data[data.index(entry)]	
+		# If there is more than one entry to compound into other
+		if len(entries_to_compound) > 1:
+			for entry in entries_to_compound:
+				del data[data.index(entry)]	
 		# If the data still has too many entries, compound the smallest into the
 		# 'Other' entry
 		if len(data) > CONST_MAX_DATA_ENTRIES:
@@ -356,7 +357,7 @@ class Charter:
 						+ "/g' " + self.filepath))
 
 	def start_loading_animation(self):      
-        GLib.timeout_add(500, self.get_loading_animation)
+        GLib.timeout_add(400, self.get_loading_animation)
 	
 	def get_loading_animation(self):
 		if self.visible:
