@@ -72,24 +72,48 @@ def unformat_time(time):
     return unformatted_time
 
 def time_in_span(start_time, stop_time, minimum, maximum):
-        """Checks if an activity is within a time span by checking its start and
+    """Checks if an activity is within a time span by checking its start and
         stop time against a maximum and minimum value"""
-        # If both the start time and start time are in the range 
-        if (start_time >= minimum and start_time < maximum and 
-            stop_time <= maximum):
-            # Total time is the difference between the stop and start times
-            total_time = stop_time - start_time
-        # If start time is outside the range but the stop time is in the range
-        elif (stop_time <= maximum and stop_time > minimum and 
-                start_time < minimum):
-            # Total time is the difference between the stop and minimum times
-            total_time = stop_time - minimum
-        # If start time is inside the range but stop time is outside the range
-        elif (start_time >= minimum and start_time < maximum and 
-                stop_time > maximum):
-            # Total time is the difference between the maximum and start times
-            total_time = maximum - start_time
+    # If both the start time and start time are in the range 
+    if (start_time >= minimum and start_time < maximum and 
+        stop_time <= maximum):
+        # Total time is the difference between the stop and start times
+        total_time = stop_time - start_time
+    # If start time is outside the range but the stop time is in the range
+    elif (stop_time <= maximum and stop_time > minimum and 
+            start_time < minimum):
+        # Total time is the difference between the stop and minimum times
+        total_time = stop_time - minimum
+    # If start time is inside the range but stop time is outside the range
+    elif (start_time >= minimum and start_time < maximum and 
+            stop_time > maximum):
+        # Total time is the difference between the maximum and start times
+        total_time = maximum - start_time
+    else:
+        # Else there is no time in the range
+        total_time = 0
+    return total_time
+
+def increment_date_tuple(date_tuple, incrementation):
+    """Increments a date tuple by a specified number of days"""
+    # Caste all objects in date tuple to type int, if they are not so already
+    date = [int(date_tuple[0]), int(date_tuple[1]), int(date_tuple[2]), 
+            int(date_tuple[3]), int(date_tuple[4]), int(date_tuple[5])]
+    # Iterate through incrementation
+    for day in xrange(incrementation-1):
+        #If the incremented date is greater than 
+        if date[3]+1 > calendar.monthrange(date[5], date[4])[1]:
+            # If month is equal to 12
+            if date[4] == 12:
+                # increment year and set month and day equal to one
+                date[5] += 1
+                date[4] = 1
+                date[3] = 1
+            else:
+                # increment the month and set the days equal to one
+                date[4] += 1
+                date[3] = 1
         else:
-            # Else there is no time in the range
-            total_time = 0
-        return total_time
+            # Increment the day
+            date[3] += 1
+    return date

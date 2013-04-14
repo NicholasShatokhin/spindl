@@ -647,13 +647,13 @@ class SpindlWindow(Window):
             #self.charter.compound_other_data()
             # Load the chart into the webview
             self.charter.load_into_webview()
-        #elif self.trendView.visible:
-        #    self.trendView.clear()
-        #    self.trendView.data = self.filer.read_log('*')
-        #    self.trendView.generate_span_trends((from_day, from_month, 
-        #                                            from_year), (to_day, 
-        #                                            to_month, to_year))
-        #    self.trendView.load_into_treeview_window()
+        elif self.trendView.visible:
+            self.trendView.clear()
+            self.trendView.data = self.filer.read_log('*')
+            self.trendView.generate_span_trends((from_day, from_month, 
+                                                    from_year), (to_day, 
+                                                    to_month, to_year))
+            self.trendView.load_into_treeview_window()
         # Set the proper time selection boxes as visible
         self.analytics_day_box.set_visible(False)
         self.analytics_month_box.set_visible(False)
@@ -913,6 +913,10 @@ class SpindlWindow(Window):
             self.trendView.set_visible(False)
             if not self.charter.visible:
                 self.charter.set_visible(True)
+            self.day_value = 0
+            self.month_value = 0
+            self.from_value = 0
+            self.to_value = 0
         elif active_item == 'Amount of Time Spent':
             self.charter.type = 'bar'
             self.analytics_for_box.set_visible(True)
@@ -925,6 +929,10 @@ class SpindlWindow(Window):
             self.trendView.set_visible(False)
             if not self.charter.visible:
                 self.charter.set_visible(True)
+            self.day_value = 0
+            self.month_value = 0
+            self.from_value = 0
+            self.to_value = 0
         else:
             self.for_liststore.clear()
             for_list = [('Day',), ('Month',), ('Span of Time',)]
@@ -936,6 +944,11 @@ class SpindlWindow(Window):
             self.trendView.data = self.filer.read_log('*')
             self.trendView.generate_day_trends((8,2,2013))
             self.trendView.load_into_treeview_window()
+            self.day_value = 0
+            self.month_value = 0
+            self.from_value = 0
+            self.to_value = 0
+            self.refresh_date_entry()
         self.analytics_day_box.set_visible(False)
         self.analytics_month_box.set_visible(False)
         self.analytics_from_box.set_visible(False)
@@ -947,6 +960,10 @@ class SpindlWindow(Window):
         model = self.for_combobox.get_model()
         index = self.for_combobox.get_active()
         active_item = model[index][0]
+        self.refresh_date_entry(active_item)
+
+    def refresh_date_entry(self, active_item=None):
+        """Change the value in the date entry to the current date"""
         # Update the current date
         self.timer.update_current_date()
         if active_item == 'All Time':
@@ -970,6 +987,8 @@ class SpindlWindow(Window):
             format_entry_as_date(self.timer.current_date, self.to_entry, self.to_value)
             # Refresh the graph to reflect changes in the day entry
             self.refresh_span_chart()
+        else:
+            format_entry_as_date(self.timer.current_date, self.day_entry, 0)
 
     def on_minus_day_button_pressed(self, user_data):
         """Called when the user presses the minus day button to decrement the 
@@ -1077,7 +1096,7 @@ class SpindlWindow(Window):
         self.timer.update_current_date()
         # Check if the date to be changed to is valid before changing it
         if (entry_day_is_valid(self.timer.current_date, self.from_value+1) 
-            and self.from_value < self.to_value):
+            and self.from_value < self.to_value-1):
             self.from_value += 1
             format_entry_as_date(self.timer.current_date, 
                                     self.from_entry, 
@@ -1109,7 +1128,7 @@ class SpindlWindow(Window):
         self.timer.update_current_date()
         # Check if the date to be changed to is valid before changing it
         if (entry_day_is_valid(self.timer.current_date, self.to_value-1) 
-            and self.from_value < self.to_value):
+            and self.from_value < self.to_value-1):
             self.to_value -= 1
             format_entry_as_date(self.timer.current_date, 
                                     self.to_entry, 
