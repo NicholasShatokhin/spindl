@@ -13,24 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ### END LICENSE
-#from gettext import gettext as _
 from gi.repository import Gdk    
 from gi.repository import Gtk
 from gi.repository import Dee
 _m = dir(Dee.SequenceModel)
 from gi.repository import AppIndicator3
 
+# Path to the SVG icon for the app
 ICON_PATH = "/home/zane/spindl/data/media/spindl.svg"
 
 class Indicator:
     """Adds a section for integrating with Application Indicators"""
-    def __init__(self, indicator_menu, activity_item, timer_item, 
-                    start_item, pause_item, hide_item, quit_item):
+    def __init__(self, indicator_menu, activity_item, timer_item, icon):
 
         # Create the AppIndicator
         self.app_indicator = AppIndicator3.Indicator.new(
                             "Spindl",
-                            ICON_PATH,
+                            icon,
                             AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
         # Set it to Active by default
         self.app_indicator.set_status (AppIndicator3.IndicatorStatus.ACTIVE)
@@ -42,10 +41,6 @@ class Indicator:
         self.indicator_menu = indicator_menu
         self.activity_item = activity_item
         self.timer_item = timer_item
-        #self.start_item = start_item
-        #self.pause_item = pause_item
-        #self.hide_item = hide_item
-        #self.quit_item = quit_item
         
         # Make activity_item and timer_item not sensitive so they aren't 
         # highlighted orange when the mouse goes over them.

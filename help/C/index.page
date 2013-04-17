@@ -7,9 +7,9 @@
   <title type="text">Spindl</title>
   <desc>The <app>Spindl</app> help.</desc>
   <credit type="author">
-    <name>Your Name</name>
-    <email>Your E-mail</email>
-    <years>2010</years>
+    <name>Zane Swafford</name>
+    <email>zane@zaneswafford.com</email>
+    <years>2013</years>
   </credit>
   <license href="http://creativecommons.org/licenses/by-sa/3.0/">
   <p>Creative Commons Attribution-Share Alike 3.0 Unported License</p>
@@ -23,7 +23,7 @@
 <app>Spindl</app> Help
 </title>
 
-<p>This is an example guide page. It's main function is to link together the help topics.</p>
+<p>Spindl is an application to help you record and track the time you spend on various activities.</p>
 
 <!-- This is the visible index -->
 <section id="contents" style="2column">

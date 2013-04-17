@@ -4,7 +4,12 @@
   <!-- interface-requires spindl_window 1.0 -->
   <!-- interface-local-resource-path ../media -->
   <object class="GtkAction" id="action1"/>
-  <object class="GtkEntryCompletion" id="entrycompletion2">
+  <object class="GtkAdjustment" id="day_adjustment">
+    <property name="lower">-10000</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkEntryCompletion" id="entrycompletion1">
     <property name="model">total_treestore</property>
     <property name="minimum_key_length">3</property>
     <property name="text_column">0</property>
@@ -14,12 +19,7 @@
     <property name="popup_single_match">False</property>
     <property name="inline_selection">True</property>
   </object>
-  <object class="GtkAdjustment" id="day_adjustment">
-    <property name="lower">-10000</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkEntryCompletion" id="entrycompletion1">
+  <object class="GtkEntryCompletion" id="entrycompletion2">
     <property name="model">total_treestore</property>
     <property name="minimum_key_length">3</property>
     <property name="text_column">0</property>
@@ -93,15 +93,6 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">add.png</property>
-  </object>
-  <object class="GtkLabel" id="label2">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="label" translatable="yes">Activity</property>
-    <attributes>
-      <attribute name="font-desc" value="Ubuntu 10"/>
-      <attribute name="foreground" value="#88888a8a8585"/>
-    </attributes>
   </object>
   <object class="GtkMenu" id="indicator_menu">
     <property name="visible">True</property>
@@ -274,6 +265,15 @@
         <signal name="activate" handler="on_quit_indicator_activate" swapped="no"/>
       </object>
     </child>
+  </object>
+  <object class="GtkLabel" id="label2">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="label" translatable="yes">Activity</property>
+    <attributes>
+      <attribute name="font-desc" value="Ubuntu 10"/>
+      <attribute name="foreground" value="#88888a8a8585"/>
+    </attributes>
   </object>
   <object class="GtkLabel" id="label5">
     <property name="visible">True</property>
@@ -466,6 +466,7 @@
     <property name="title" translatable="yes">Spindl</property>
     <property name="default_width">600</property>
     <property name="default_height">507</property>
+    <property name="hide_titlebar_when_maximized">True</property>
     <property name="icon">../media/spindl.svg</property>
     <child>
       <object class="GtkPaned" id="paned1">
@@ -483,68 +484,15 @@
               <object class="GtkMenuBar" id="menubar1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="hexpand">True</property>
-                <property name="vexpand">True</property>
                 <child>
                   <object class="GtkMenuItem" id="mnu_file">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">File</property>
                     <child type="submenu">
                       <object class="GtkMenu" id="menu1">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <child>
-                          <object class="GtkImageMenuItem" id="mnu_new">
-                            <property name="label">gtk-new</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                            <accelerator key="n" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="mnu_open">
-                            <property name="label">gtk-open</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                            <accelerator key="o" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkSeparatorMenuItem" id="separatormenuitem3">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="mnu_save">
-                            <property name="label">gtk-save</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                            <accelerator key="s" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="mnu_save_as">
-                            <property name="label">gtk-save-as</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                            <accelerator key="s" signal="activate" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkSeparatorMenuItem" id="separatormenuitem1">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                          </object>
-                        </child>
                         <child>
                           <object class="GtkImageMenuItem" id="mnu_close">
                             <property name="label">gtk-close</property>
@@ -560,91 +508,20 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkMenuItem" id="mnu_edit">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child type="submenu">
-                      <object class="GtkMenu" id="menu2">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <child>
-                          <object class="GtkImageMenuItem" id="mnu_cut">
-                            <property name="label">gtk-cut</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                            <accelerator key="x" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="mnu_copy">
-                            <property name="label">gtk-copy</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                            <accelerator key="c" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="mnu_paste">
-                            <property name="label">gtk-paste</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                            <accelerator key="v" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="mnu_delete">
-                            <property name="label">gtk-delete</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                            <accelerator key="Delete" signal="activate"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkSeparatorMenuItem" id="separatormenuitem2">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkImageMenuItem" id="mnu_preferences">
-                            <property name="label">gtk-preferences</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuItem" id="mnu_view">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                </child>
-                <child>
                   <object class="GtkMenuItem" id="mnu_help">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Help</property>
                     <child type="submenu">
                       <object class="GtkMenu" id="helpMenu">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
                           <object class="GtkImageMenuItem" id="mnu_contents">
+                            <property name="label">gtk-help</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="use_stock">False</property>
+                            <property name="use_stock">True</property>
                             <accelerator key="F1" signal="activate"/>
                           </object>
                         </child>
@@ -664,7 +541,7 @@
               </object>
               <packing>
                 <property name="expand">False</property>
-                <property name="fill">False</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -684,7 +561,12 @@
             <child>
               <object class="GtkBox" id="current_activity_box">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can_focus">True</property>
+                <property name="has_focus">True</property>
+                <property name="is_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="has_default">True</property>
+                <property name="receives_default">True</property>
                 <property name="valign">start</property>
                 <child>
                   <object class="GtkEntry" id="activity_entry">
@@ -716,11 +598,12 @@
                     <property name="width_request">110</property>
                     <property name="height_request">32</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="receives_default">False</property>
                     <property name="valign">start</property>
                     <property name="margin_right">4</property>
                     <property name="margin_top">3</property>
+                    <property name="focus_on_click">False</property>
                     <signal name="clicked" handler="on_set_button_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -750,9 +633,10 @@
             <child>
               <object class="GtkNotebook" id="notebook1">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can_focus">False</property>
                 <property name="hexpand">True</property>
                 <property name="vexpand">True</property>
+                <property name="show_border">False</property>
                 <child>
                   <object class="GtkScrolledWindow" id="scrolledwindow1">
                     <property name="visible">True</property>
@@ -769,7 +653,7 @@
                         <signal name="button-press-event" handler="on_total_treeview_button_press_event" swapped="no"/>
                         <signal name="row-activated" handler="on_total_treeview_row_activated" swapped="no"/>
                         <child internal-child="selection">
-                          <object class="GtkTreeSelection" id="treeview-selection"/>
+                          <object class="GtkTreeSelection" id="treeview-selection1"/>
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="total_activity_column">
@@ -822,7 +706,7 @@
                   </object>
                 </child>
                 <child type="tab">
-                  <object class="GtkLabel" id="label1">
+                  <object class="GtkLabel" id="Totals">
                     <property name="width_request">185</property>
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
@@ -849,6 +733,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="margin_left">2</property>
+                        <property name="margin_top">2</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkBox" id="analytics_show_box">
@@ -862,6 +747,7 @@
                                 <property name="halign">start</property>
                                 <property name="margin_left">1</property>
                                 <property name="margin_top">6</property>
+                                <property name="margin_bottom">1</property>
                                 <property name="label" translatable="yes">Show: </property>
                                 <attributes>
                                   <attribute name="font-desc" value="Ubuntu 9"/>
@@ -879,6 +765,7 @@
                                 <property name="height_request">32</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="margin_top">2</property>
                                 <property name="model">show_liststore</property>
                                 <property name="button_sensitivity">on</property>
                                 <signal name="changed" handler="on_show_combobox_changed" swapped="no"/>
@@ -914,6 +801,7 @@
                                 <property name="halign">start</property>
                                 <property name="margin_left">1</property>
                                 <property name="margin_top">6</property>
+                                <property name="margin_bottom">1</property>
                                 <property name="label" translatable="yes">For: </property>
                                 <attributes>
                                   <attribute name="font-desc" value="Ubuntu 9"/>
@@ -931,6 +819,7 @@
                                 <property name="height_request">32</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="margin_top">2</property>
                                 <property name="model">for_liststore</property>
                                 <signal name="changed" handler="on_for_combobox_changed" swapped="no"/>
                                 <child>
@@ -966,6 +855,7 @@
                                 <property name="halign">start</property>
                                 <property name="margin_left">1</property>
                                 <property name="margin_top">6</property>
+                                <property name="margin_bottom">1</property>
                                 <property name="label" translatable="yes">Day: </property>
                                 <attributes>
                                   <attribute name="font-desc" value="Ubuntu 9"/>
@@ -991,6 +881,7 @@
                                     <property name="can_focus">True</property>
                                     <property name="can_default">True</property>
                                     <property name="has_default">True</property>
+                                    <property name="margin_top">2</property>
                                     <property name="max_length">10</property>
                                     <property name="invisible_char">•</property>
                                     <property name="activates_default">True</property>
@@ -1071,6 +962,7 @@
                                 <property name="halign">start</property>
                                 <property name="margin_left">1</property>
                                 <property name="margin_top">6</property>
+                                <property name="margin_bottom">1</property>
                                 <property name="label" translatable="yes">Month: </property>
                                 <attributes>
                                   <attribute name="font-desc" value="Ubuntu 9"/>
@@ -1096,6 +988,7 @@
                                     <property name="can_focus">True</property>
                                     <property name="can_default">True</property>
                                     <property name="has_default">True</property>
+                                    <property name="margin_top">2</property>
                                     <property name="max_length">7</property>
                                     <property name="invisible_char">•</property>
                                     <property name="activates_default">True</property>
@@ -1175,6 +1068,7 @@
                                 <property name="halign">start</property>
                                 <property name="margin_left">1</property>
                                 <property name="margin_top">6</property>
+                                <property name="margin_bottom">1</property>
                                 <property name="label" translatable="yes">From: </property>
                                 <attributes>
                                   <attribute name="font-desc" value="Ubuntu 9"/>
@@ -1199,6 +1093,7 @@
                                     <property name="can_focus">True</property>
                                     <property name="can_default">True</property>
                                     <property name="has_default">True</property>
+                                    <property name="margin_top">2</property>
                                     <property name="max_length">10</property>
                                     <property name="invisible_char">•</property>
                                     <property name="activates_default">True</property>
@@ -1278,6 +1173,7 @@
                                 <property name="halign">start</property>
                                 <property name="margin_left">1</property>
                                 <property name="margin_top">6</property>
+                                <property name="margin_bottom">1</property>
                                 <property name="label" translatable="yes">To: </property>
                                 <attributes>
                                   <attribute name="font-desc" value="Ubuntu 9"/>
@@ -1302,6 +1198,7 @@
                                     <property name="can_focus">True</property>
                                     <property name="can_default">True</property>
                                     <property name="has_default">True</property>
+                                    <property name="margin_top">2</property>
                                     <property name="max_length">10</property>
                                     <property name="invisible_char">•</property>
                                     <property name="activates_default">True</property>
@@ -1446,7 +1343,7 @@
                                 <property name="headers_clickable">False</property>
                                 <property name="search_column">0</property>
                                 <child internal-child="selection">
-                                  <object class="GtkTreeSelection" id="treeview-selection3"/>
+                                  <object class="GtkTreeSelection" id="treeview-selection2"/>
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn" id="activity_trend_column">
@@ -1502,7 +1399,7 @@
                   </packing>
                 </child>
                 <child type="tab">
-                  <object class="GtkLabel" id="label4">
+                  <object class="GtkLabel" id="Analytics">
                     <property name="width_request">185</property>
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
@@ -1535,7 +1432,7 @@
                         <property name="search_column">0</property>
                         <signal name="button-press-event" handler="on_log_treeview_button_press_event" swapped="no"/>
                         <child internal-child="selection">
-                          <object class="GtkTreeSelection" id="treeview-selection4"/>
+                          <object class="GtkTreeSelection" id="treeview-selection3"/>
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="log_activity_column">
@@ -1581,7 +1478,7 @@
                   </packing>
                 </child>
                 <child type="tab">
-                  <object class="GtkLabel" id="label3">
+                  <object class="GtkLabel" id="Logs">
                     <property name="width_request">185</property>
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
@@ -1720,8 +1617,11 @@
         <property name="width_request">110</property>
         <property name="height_request">32</property>
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="receives_default">True</property>
+        <property name="can_focus">False</property>
+        <property name="has_focus">True</property>
+        <property name="has_default">True</property>
+        <property name="receives_default">False</property>
+        <property name="focus_on_click">False</property>
         <signal name="toggled" handler="on_timer_start_button_toggled" swapped="no"/>
       </object>
       <packing>
@@ -1738,8 +1638,9 @@
         <property name="width_request">110</property>
         <property name="height_request">32</property>
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="receives_default">True</property>
+        <property name="can_focus">False</property>
+        <property name="receives_default">False</property>
+        <property name="focus_on_click">False</property>
         <property name="xalign">0.50999999046325684</property>
         <property name="yalign">0.50999999046325684</property>
         <signal name="toggled" handler="on_timer_pause_button_toggled" swapped="no"/>

@@ -25,6 +25,7 @@ from spindl_lib.timer import Timer
 from spindl_lib.charter import Charter
 from spindl_lib.trendView import TrendView
 from spindl_lib.unityIndicator import Indicator
+from spindl_lib.unityLauncher import Launcher
 from spindl_lib.toolbarFormat import *
 from spindl_lib.comboboxFormat import *
 from spindl_lib.timeFormat import *
@@ -43,6 +44,7 @@ if not os.path.isdir(spindl_directory):
 # Location of the activity database
 CONST_DB_FILE_PATH = spindl_directory + 'spindl.db'
 CONST_CHART_PATH = spindl_directory + 'chart.svg'
+CONST_ICON_PATH = '/usr/share/spindl/media/spindl.svg'
 
 # See spindl_lib.Window.py for more details about how this class works
 class SpindlWindow(Window):
@@ -63,6 +65,7 @@ class SpindlWindow(Window):
         self.timer_start_button = self.builder.get_object("timer_start_button")
         self.timer_pause_button = self.builder.get_object("timer_pause_button")
         self.activity_entry = self.builder.get_object("activity_entry")
+        self.notebook1 = self.builder.get_object("notebook1")
         self.total_treeview = self.builder.get_object("total_treeview")
         self.log_treeview = self.builder.get_object("log_treeview")   
         self.total_treestore = self.builder.get_object("total_treestore")
@@ -254,11 +257,9 @@ class SpindlWindow(Window):
         self.charter.load_into_webview(initial=True)
         self.indicator = Indicator(self.indicator_menu, 
                                     self.current_activity_indicator,
-                                    self.timer_indicator, 
-                                    self.start_timer_indicator,
-                                    self.pause_timer_indicator, 
-                                    self.hide_window_indicator,
-                                    self.quit_indicator)
+                                    self.timer_indicator,
+                                    CONST_ICON_PATH)
+        self.launcher = Launcher(self.spindl_window, self.notebook1)
         # Load the previous logs from the database
         for entry in self.filer.read_log("*"):
             self.log_treestore.prepend(None, (entry[0], entry[1], entry[2]))
@@ -300,14 +301,19 @@ class SpindlWindow(Window):
                                 self.set_activity_menu_list,
                                 self.set_activity_indicator, 
                                 self.alternative_new_activity_indicator)
+        self.timer_start_button.set_sensitive(False)
+        self.timer_pause_button.set_sensitive(False)
 
     def start_time(self):
         """Starts the timer"""
         # Start the timer
         self.timer.start()
+        self.timer_pause_button.set_sensitive(True)
 
     def stop_time(self):
         """Stops the timer"""
+        self.timer_start_button.set_sensitive(False)
+        self.timer_pause_button.set_sensitive(False)
         # Check if the timer was paused before stopping.
         if self.timer.is_running:
             was_paused = False
@@ -493,6 +499,8 @@ class SpindlWindow(Window):
 	    if self.timer.is_running and not keep_running:
 		    self.stop_time()
             # Make sure the start and pause buttons are set to their defaults
+            self.timer_start_button.set_sensitive(True)
+            self.timer_pause_button.set_sensitive(False)
             self.timer_start_button.set_active(False)
             self.timer_pause_button.set_active(False)
         # If the entry has a valid activity            
@@ -506,6 +514,8 @@ class SpindlWindow(Window):
             self.current_activity_text = formatted_activity_text               
             self.current_activity_label.set_text(formatted_activity_text)  
             self.current_activity_indicator.set_label(formatted_activity_text)
+            self.timer_start_button.set_sensitive(True)
+            self.timer_pause_button.set_sensitive(False)
         # Clear the activity entry
         self.activity_entry.set_text("")
         # If the indicator exists
@@ -917,6 +927,10 @@ class SpindlWindow(Window):
             self.month_value = 0
             self.from_value = 0
             self.to_value = 0
+            self.charter.data = []
+            self.charter.create_chart()
+            self.charter.load_into_webview()
+
         elif active_item == 'Amount of Time Spent':
             self.charter.type = 'bar'
             self.analytics_for_box.set_visible(True)
@@ -933,6 +947,10 @@ class SpindlWindow(Window):
             self.month_value = 0
             self.from_value = 0
             self.to_value = 0
+            self.charter.data = []
+            self.charter.create_chart()
+            self.charter.load_into_webview()
+            
         else:
             self.for_liststore.clear()
             for_list = [('Day',), ('Month',), ('Span of Time',)]
@@ -942,7 +960,8 @@ class SpindlWindow(Window):
             self.trendView.set_visible(True)
             self.charter.set_visible(False)
             self.trendView.data = self.filer.read_log('*')
-            self.trendView.generate_day_trends((8,2,2013))
+            # Generate empty trends from empty date 
+            self.trendView.generate_day_trends((0,0,0))
             self.trendView.load_into_treeview_window()
             self.day_value = 0
             self.month_value = 0
@@ -1304,7 +1323,8 @@ class SpindlWindow(Window):
             self.spindl_window.set_skip_pager_hint(False)
             # Switch the indicator show button to hide mode
             self.hide_window_indicator.set_label("Hide Spindl")
-
+            self.spindl_window.present()
+            
     def on_quit_indicator_activate(self, user_data):
         """Called when the user clicks the quit item from the indicator"""
         self.spindl_window.destroy()
