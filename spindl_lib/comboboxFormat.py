@@ -32,10 +32,3 @@ def format_analytics_combobox(show_combobox, for_combobox):
 	# Update the model for the comboboxes
 	show_combobox.set_model(show_liststore)
 	for_combobox.set_model(for_liststore)
-
-def format_combobox_text(cellrenderertext):
-	"""Modifies items in a combobox to the correct color and style"""
-	# Set the text color to light grey 
-	#cellrenderertext.set_property('foreground-gdk', 
-	#								Gdk.Color(34952, 35466, 34181))
-	pass

@@ -95,25 +95,16 @@ class SpindlWindow(Window):
         self.stop_time_column_header_label = self.builder.get_object("stop_time_column_header_label")
         self.stop_time_column_child_text = self.builder.get_object("stop_time_column_child_text")
         # Initialize widgets in the Analytics tab
-        # Initialize the color_liststore and the color_treeview 
-        #self.color_liststore = self.builder.get_object("color_liststore")
-        #self.color_column = self.builder.get_object("color_column")        
-        #self.color_column_child_pixbuf = self.builder.get_object("color_column_child_pixbuf")
-        #self.value_column_child_text = self.builder.get_object("value_column_child_text")
-        #self.activity_column_child_text = self.builder.get_object("activity_column_child_text")
-
         self.webview_scrolledwindow = self.builder.get_object("webview_scrolledwindow")
         self.webview = WebKit.WebView()
         self.webview_scrolledwindow.add(self.webview)
         self.webview.show()
-
         # Initialize the GtkBoxes that contain the date entries for analytics.
         self.analytics_day_box = self.builder.get_object("analytics_day_box")
         self.analytics_month_box = self.builder.get_object("analytics_month_box")
         self.analytics_from_box = self.builder.get_object("analytics_from_box")
         self.analytics_to_box = self.builder.get_object("analytics_to_box")
         self.analytics_for_box = self.builder.get_object("analytics_for_box")
-        #self.analytics_radio_box = self.builder.get_object("analytics_radio_box")
         # Initialize all of the date entries and plus/minus buttons 
         # for analytics
         self.show_combobox = self.builder.get_object("show_combobox")
@@ -125,8 +116,6 @@ class SpindlWindow(Window):
         self.month_entry = self.builder.get_object("month_entry")
         self.from_entry = self.builder.get_object("from_entry")
         self.to_entry = self.builder.get_object("to_entry")
-        #self.percentages_radiobutton = self.builder.get_object("percentages_radiobutton")
-        #self.time_radiobutton = self.builder.get_object("time_radiobutton")
         self.minus_day_button = self.builder.get_object("minus_day_button")
         self.minus_month_button = self.builder.get_object("minus_month_button")
         self.minus_from_button = self.builder.get_object("minus_from_button")
@@ -214,18 +203,12 @@ class SpindlWindow(Window):
                         self.stop_time_column_header_label, 
                         self.stop_time_column_child_text, 
                         ellipsize=False)
-        format_combobox_text(self.show_combobox_text)
-        format_combobox_text(self.for_combobox_text)
-        # Set the "Show Percentages" and "Show Time" radiobutton's labels
-        #self.percentages_radiobutton.modify_fg(0,Gdk.Color(34952, 35466, 34181))
-        #self.time_radiobutton.modify_fg(0,Gdk.Color(34952, 35466, 34181))
         # Set the analytics boxes to invisible until told otherwise
         self.analytics_day_box.set_visible(False)
         self.analytics_month_box.set_visible(False)
         self.analytics_from_box.set_visible(False)
         self.analytics_to_box.set_visible(False)
         self.analytics_for_box.set_visible(False)
-        #self.analytics_radio_box.set_visible(False)
         # Set the initial values for day/month/from/to values. These are used
         # to determine what time period the graph should be drawn to. They
         # begin at 0 for current day and go backwards (negative) in time.
@@ -241,18 +224,17 @@ class SpindlWindow(Window):
         self.charter = Charter('ubuntu', CONST_CHART_PATH, self.webview, 
                                 self.webview_scrolledwindow, self.spinner)
 
-        self.trendView = TrendView(self.trendview_scrolledwindow, self.trends_treestore, 
+        self.trendView = TrendView(self.trendview_scrolledwindow, 
+                                    self.trends_treestore, 
                                     self.activity_trend_cellrenderertext,  
                                     self.trend_image_pixbuf,
                                     self.percent_change_cellrenderertext,
                                     'data/media/')
         self.trendView.set_visible(False)
         # Set the data
-        self.charter.data = []#('Activity', 100, 0), ('Things', 25, 1), ('Stuff', 25, 2), ('Cool', 10, 3)]
+        self.charter.data = []
         # Create the chart of type pie
         self.charter.create_chart('pie')
-        # Compound data
-        #self.charter.compound_other_data()
         # Load the chart into the webview
         self.charter.load_into_webview(initial=True)
         self.indicator = Indicator(self.indicator_menu, 
@@ -270,14 +252,7 @@ class SpindlWindow(Window):
                                         (entry[0], 
                                         self.timer.format_timer(entry[1]), 
                                         self.timer.format_timer(entry[2])))
-        #self.charter.data = []
-        # Create the chart of type pie
-        #self.charter.create_chart('pie')
-        # Compound data
-        #self.charter.compound_other_data()
-        # Load the chart into the webview
-        #self.charter.load_into_webview()
-        # format all of the date entry widgets
+        # Format all of the date entry widgets
         format_entry_as_date(self.timer.current_date, 
                                 self.day_entry, self.day_value)
         format_entry_as_date(self.timer.current_date, 
@@ -301,6 +276,8 @@ class SpindlWindow(Window):
                                 self.set_activity_menu_list,
                                 self.set_activity_indicator, 
                                 self.alternative_new_activity_indicator)
+        # Set the start/stop/pause buttons to insensitive until an activity is 
+        # set.
         self.timer_start_button.set_sensitive(False)
         self.timer_pause_button.set_sensitive(False)
 
@@ -361,14 +338,6 @@ class SpindlWindow(Window):
                                         (entry[0], 
                                         self.timer.format_timer(entry[1]), 
                                         self.timer.format_timer(entry[2])))
-        #self.charter.data = self.filer.read_total(self.timer.current_date)
-        # Create the chart of type pie
-        #self.charter.create_chart()
-        # Compound data
-        #self.charter.compound_other_data()
-        # Load the chart into the webview
-        #self.charter.load_into_webview()
-        #### CUT AND SPLICE HERE
         model = self.for_combobox.get_model()
         index = self.for_combobox.get_active()
         active_item = model[index][0]
@@ -395,7 +364,6 @@ class SpindlWindow(Window):
             format_entry_as_date(self.timer.current_date, self.to_entry, self.to_value)
             # Refresh the graph to reflect changes in the day entry
             self.refresh_span_chart()
-        ####
         # Load the new activity information into the set_activity_menu
         format_menu_from_totals(self.filer.read_total(self.timer.current_date), 
                                 self.set_activity_menu_list,
@@ -448,14 +416,6 @@ class SpindlWindow(Window):
                                         (entry[0], 
                                         self.timer.format_timer(entry[1]), 
                                         self.timer.format_timer(entry[2])))
-        #self.charter.data = self.filer.read_total(self.timer.current_date)
-        # Create the chart of type pie
-        #self.charter.create_chart()
-        # Compound data
-        #self.charter.compound_other_data()
-        # Load the chart into the webview
-        #self.charter.load_into_webview()
-        #### CUT AND SPLICE HERE
         model = self.for_combobox.get_model()
         index = self.for_combobox.get_active()
         active_item = model[index][0]
@@ -482,7 +442,6 @@ class SpindlWindow(Window):
             format_entry_as_date(self.timer.current_date, self.to_entry, self.to_value)
             # Refresh the graph to reflect changes in the day entry
             self.refresh_span_chart()
-        ####
         # Load the new activity information into the set_activity_menu
         format_menu_from_totals(self.filer.read_total(self.timer.current_date), 
                                 self.set_activity_menu_list,
@@ -532,12 +491,8 @@ class SpindlWindow(Window):
             self.timer.update_current_date()
             # Set the chart data to reflect the current data
             self.charter.data = self.filer.read_total(self.timer.current_date)
-            #self.charter.data = self.filer.read_log('*')
             # Create the chart of type pie
-            print 'Charter Data == ' + str(self.charter.data)
             self.charter.create_chart()
-            # Compound data
-            #self.charter.compound_other_data()
             # Load the chart into the webview
             self.charter.load_into_webview()
         # Set the proper entry box as visible 
@@ -545,7 +500,6 @@ class SpindlWindow(Window):
         self.analytics_month_box.set_visible(False)
         self.analytics_from_box.set_visible(False)
         self.analytics_to_box.set_visible(False)
-        #self.analytics_radio_box.set_visible(True)
 
     def refresh_day_chart(self):
         """Called to get the date from the day_entry and redraw the graph to 
@@ -569,8 +523,6 @@ class SpindlWindow(Window):
             # Create the chart of type pie
             self.charter.create_chart(span=('day',(0,0,0,day,month,year),
                                             (59,59,23,day,month,year)))
-            # Compound data
-            #self.charter.compound_other_data()
             # Load the chart into the webview
             self.charter.load_into_webview()
         elif self.trendView.visible:
@@ -583,7 +535,6 @@ class SpindlWindow(Window):
         self.analytics_month_box.set_visible(False)
         self.analytics_from_box.set_visible(False)
         self.analytics_to_box.set_visible(False)
-        #self.analytics_radio_box.set_visible(True)
 
     def refresh_month_chart(self):
         """Called to get the date from the month_entry and redraw the graph to 
@@ -602,8 +553,6 @@ class SpindlWindow(Window):
             self.charter.create_chart(span=('month',(0,0,0,1,month,year),
                                             (59,59,23,day, int(month),
                                                             int(year))))
-            # Compound data
-            #self.charter.compound_other_data()
             # Load the chart into the webview
             self.charter.load_into_webview()
         elif self.trendView.visible:
@@ -616,7 +565,6 @@ class SpindlWindow(Window):
         self.analytics_month_box.set_visible(True)
         self.analytics_from_box.set_visible(False)
         self.analytics_to_box.set_visible(False)
-        #self.analytics_radio_box.set_visible(True)
 
     def refresh_span_chart(self):
         """Called to get the date from the span_entry and redraw the graph to 
@@ -653,8 +601,6 @@ class SpindlWindow(Window):
             # Create the chart of type pie
             self.charter.create_chart(span=('span',(0,0,0,from_day,from_month,from_year),
                                             (59,59,23,to_day,to_month,to_year)))
-            # Compound data
-            #self.charter.compound_other_data()
             # Load the chart into the webview
             self.charter.load_into_webview()
         elif self.trendView.visible:
@@ -669,7 +615,6 @@ class SpindlWindow(Window):
         self.analytics_month_box.set_visible(False)
         self.analytics_from_box.set_visible(True)
         self.analytics_to_box.set_visible(True)
-        #self.analytics_radio_box.set_visible(True)
 
 ################# Functions for Gtk signals begin here ##################
 
@@ -909,11 +854,9 @@ class SpindlWindow(Window):
         model = self.show_combobox.get_model()
         index = self.show_combobox.get_active()
         active_item = model[index][0]
-        print '\n\nYou have selected: ' + str(active_item) + '\n\n'
         if active_item == 'Percent of Time Spent':
             self.charter.type = 'pie'
             self.analytics_for_box.set_visible(True)
-            #self.refresh_totals_chart()
             # Clear the options in the for_liststore and enter the options for
             # the percent of time spent chart.
             self.for_liststore.clear()
@@ -1246,12 +1189,11 @@ class SpindlWindow(Window):
             # Refresh the graph to reflect changes in the day entry
             self.refresh_span_chart()
 
-    def on_spindl_window_configure_event(self, event, user_data):
-        """Called when the window is resized and resizes the graph image"""
-        #self.pieGrapher.update_size()
+   # def on_spindl_window_configure_event(self, event, user_data):
+    #    """Called when the window is resized and resizes the graph image"""
+     #   pass
 
 ############### Functions for Unity indicator signals begin here ###############
-
     def on_start_timer_indicator_activate(self, user_data):
         """Called when the user toggles the start/stop button from the timer 
             toolbar"""        
