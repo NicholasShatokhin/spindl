@@ -16,7 +16,7 @@
 import sqlite3 
 #import sys
 from math import floor
-from timeFormat import *
+from timeFormat import tuple_time, unformat_time, time_in_span
 
 class Filer:
     def __init__(self, filepath):

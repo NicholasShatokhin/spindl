@@ -15,7 +15,7 @@
 # limitations under the License.
 ### END LICENSE
 import calendar
-from timeFormat import *
+from timeFormat import unformat_time
 
 def format_entry_as_date(current_date, entry, entry_value, show_days=True):
         """Formats the value in a Gtk entry to a date of MM/DD/YYYY or 

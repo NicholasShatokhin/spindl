@@ -14,9 +14,9 @@
 # limitations under the License.
 ### END LICENSE
 from locale import gettext as _
-from gi.repository import Gtk, WebKit# pylint: disable=E0611
+from gi.repository import Gtk, WebKit
 from gi.repository import Gdk
-import pango
+from calendar import monthrange
 import logging
 import os
 logger = logging.getLogger('spindl')
@@ -26,12 +26,11 @@ from spindl_lib.charter import Charter
 from spindl_lib.trendView import TrendView
 from spindl_lib.unityIndicator import Indicator
 from spindl_lib.unityLauncher import Launcher
-from spindl_lib.toolbarFormat import *
-from spindl_lib.comboboxFormat import *
-from spindl_lib.timeFormat import *
-from spindl_lib.treeviewFormat import *
-from spindl_lib.entryFormat import *
-from spindl_lib.menuFormat import *
+from spindl_lib.toolbarFormat import format_toolbar, add_toolitem
+from spindl_lib.timeFormat import format_date
+from spindl_lib.treeviewFormat import format_column
+from spindl_lib.entryFormat import format_entry_as_date, entry_day_is_valid, entry_month_is_valid, unformat_entry
+from spindl_lib.menuFormat import format_menu_from_totals
 from spindl_lib import Window
 from spindl.AboutSpindlDialog import AboutSpindlDialog
 from spindl.PreferencesSpindlDialog import PreferencesSpindlDialog
@@ -539,20 +538,21 @@ class SpindlWindow(Window):
     def refresh_month_chart(self):
         """Called to get the date from the month_entry and redraw the graph to 
             reflect that date"""
+        # Get the month selected in the entry
         month = self.month_entry.get_text()[0:2]
         if month[1] == '/':
             month = month[0]
         month = int(month)
-        day = calendar.mdays[int(month)]
         # Get the year selected in the entry
         year = int(self.month_entry.get_text()[-4:])
+        # Get the days in the selected month, given the year
+        day = monthrange(year, month)[1]
         if self.charter.visible:
             self.charter.clear()
             self.charter.data = self.filer.read_log('*')
             # Create the chart of type pie
             self.charter.create_chart(span=('month',(0,0,0,1,month,year),
-                                            (59,59,23,day, int(month),
-                                                            int(year))))
+                                            (59,59,23,day,month,year)))
             # Load the chart into the webview
             self.charter.load_into_webview()
         elif self.trendView.visible:

@@ -14,11 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ### END LICENSE
-from pygal import *
-from pygal.style import *
-from timeFormat import *
-import os
-import operator
+from pygal import Pie, Bar
+from pygal.style import Style
+from timeFormat import time_in_span, tuple_time, unformat_time 
+from os import system
+from operator import itemgetter
 from datetime import timedelta
 from math import ceil
 from gi.repository import GLib
@@ -271,20 +271,20 @@ class Charter:
 			convert_y_axis = ("sed -i 's/class=\\\"\\\">%s.0/class=\\\"\\\"" + 
 								">%s/g' " + self.filepath) % (str(label), 
 																y_value_in_time)
-			os.system(convert_y_axis)
+			system(convert_y_axis)
 			# Then convert the major y axises (The zeroeth and first amounts) to
 			# a formatted time if the label is a major axis.
 			convert_major_y_axis = ("sed -i 's/class=\\\"major\\\">%s.0/" + 
 									"class=\\\"major\\\">%s/g' " + 
 										self.filepath) % (str(label), 
 															y_value_in_time)
-			os.system(convert_major_y_axis)
+			system(convert_major_y_axis)
 
 	def fix_tooltip(self):
 		"""Changes the SVG file's default mouseover tooltip to no longer contain 
 			value for time in seconds"""
 		if not self.filepath == None:
-			os.system(("sed -i 's/<desc class=\"value\">[0-9]*<\/desc>//g' " + 
+			system(("sed -i 's/<desc class=\"value\">[0-9]*<\/desc>//g' " + 
 						self.filepath))
 
 	def clear(self):
@@ -297,7 +297,7 @@ class Charter:
 		# Make a duplicate of the data so it does not get tampered with
 		sorted_data = data
 		# Sort from smallest to largest based on time.
-		sorted_data.sort(key=operator.itemgetter(1))
+		sorted_data.sort(key=itemgetter(1))
 		# Make sure that the Other entry is at the end of the list if it exists
 		for entry in sorted_data:
 			if entry[0] == 'Other ':
@@ -353,13 +353,15 @@ class Charter:
 		"""Changes the SVG file's default font (monospace) to the font specified
 			when the charter was initialized"""
 		if not self.font == None:
-			os.system(("sed -i 's/font-family:monospace/font-family:" + self.font 
+			system(("sed -i 's/font-family:monospace/font-family:" + self.font 
 						+ "/g' " + self.filepath))
 
-	def start_loading_animation(self):      
+	def start_loading_animation(self):
+		"""Callback to start loading animation"""      
         GLib.timeout_add(400, self.get_loading_animation)
 	
 	def get_loading_animation(self):
+		"""Checks to see wheteher or not we should continue loading animation"""
 		if self.visible:
 	        chart_loading = not (str(self.webview.get_load_status()) == '<enum WEBKIT_LOAD_FAILED of type WebKitLoadStatus>' 
 	                    or str(self.webview.get_load_status()) == '<enum WEBKIT_LOAD_FINISHED of type WebKitLoadStatus>')
