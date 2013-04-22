@@ -140,9 +140,9 @@ DistUtilsExtra.auto.setup(
     license='Apache-2.0',
     author='Zane Swafford',
     author_email='zane@zaneswafford.com',
-    #description='UI for managing …',
-    #long_description='Here a longer description',
-    #url='https://launchpad.net/spindl',
+    description='Track your time and get things done.',
+    long_description='Spindl is a simple way to track how much time you spend throughout the day. See trends, analyze your time, and get things done with Spindl.',
+    url='http://www.zaneswafford.com/',
     cmdclass={'install': InstallAndUpdateDataDirectory}
     )
 
