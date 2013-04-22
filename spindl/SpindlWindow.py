@@ -228,7 +228,7 @@ class SpindlWindow(Window):
                                     self.activity_trend_cellrenderertext,  
                                     self.trend_image_pixbuf,
                                     self.percent_change_cellrenderertext,
-                                    'data/media/')
+                                    '/usr/share/spindl/media/')
         self.trendView.set_visible(False)
         # Set the data
         self.charter.data = []

@@ -93,27 +93,3 @@ def time_in_span(start_time, stop_time, minimum, maximum):
         # Else there is no time in the range
         total_time = 0
     return total_time
-
-def increment_date_tuple(date_tuple, incrementation):
-    """Increments a date tuple by a specified number of days"""
-    # Caste all objects in date tuple to type int, if they are not so already
-    date = [int(date_tuple[0]), int(date_tuple[1]), int(date_tuple[2]), 
-            int(date_tuple[3]), int(date_tuple[4]), int(date_tuple[5])]
-    # Iterate through incrementation
-    for day in xrange(incrementation-1):
-        #If the incremented date is greater than 
-        if date[3]+1 > calendar.monthrange(date[5], date[4])[1]:
-            # If month is equal to 12
-            if date[4] == 12:
-                # increment year and set month and day equal to one
-                date[5] += 1
-                date[4] = 1
-                date[3] = 1
-            else:
-                # increment the month and set the days equal to one
-                date[4] += 1
-                date[3] = 1
-        else:
-            # Increment the day
-            date[3] += 1
-    return date
