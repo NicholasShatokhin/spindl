@@ -135,13 +135,13 @@ class InstallAndUpdateDataDirectory(DistUtilsExtra.auto.install_auto):
 ##################################################################################
 
 DistUtilsExtra.auto.setup(
-    name='spindl',
+    name='Spindl',
     version='0.1',
     license='Apache-2.0',
     author='Zane Swafford',
     author_email='zane@zaneswafford.com',
     description='Track your time and get things done.',
-    long_description='Spindl is a simple way to track how much time you spend throughout the day. See trends, analyze your time, and get things done with Spindl.',
+    long_description='Spindl is a simple way to track how much time you spend throughout the day. See trends, analyse your time, and get things done with Spindl.',
     url='http://www.zaneswafford.com/',
     cmdclass={'install': InstallAndUpdateDataDirectory}
     )

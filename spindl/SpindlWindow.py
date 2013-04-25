@@ -43,7 +43,7 @@ if not os.path.isdir(spindl_directory):
 # Location of the activity database
 CONST_DB_FILE_PATH = spindl_directory + 'spindl.db'
 CONST_CHART_PATH = spindl_directory + 'chart.svg'
-CONST_ICON_PATH = '/usr/share/spindl/media/spindl.svg'
+CONST_ICON_PATH = '/home/zane/spindl/data/media/spindl.svg'
 
 # See spindl_lib.Window.py for more details about how this class works
 class SpindlWindow(Window):
@@ -228,7 +228,7 @@ class SpindlWindow(Window):
                                     self.activity_trend_cellrenderertext,  
                                     self.trend_image_pixbuf,
                                     self.percent_change_cellrenderertext,
-                                    '/usr/share/spindl/media/')
+                                    '/home/zane/spindl/data/media/')
         self.trendView.set_visible(False)
         # Set the data
         self.charter.data = []
