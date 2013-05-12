@@ -20,9 +20,6 @@ from gi.repository import Dee
 _m = dir(Dee.SequenceModel)
 from gi.repository import AppIndicator3
 
-# Path to the SVG icon for the app
-ICON_PATH = "/home/zane/spindl/data/media/spindl.svg"
-
 class Indicator:
     """Adds a section for integrating with Application Indicators"""
     def __init__(self, indicator_menu, activity_item, timer_item, icon):

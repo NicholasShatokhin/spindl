@@ -14,7 +14,10 @@
     <property name="icon">../media/spindl.svg</property>
     <property name="type_hint">normal</property>
     <property name="program_name">Spindl</property>
-    <property name="comments" translatable="yes">Version 0.00</property>
+    <property name="version">Version 1.00</property>
+    <property name="copyright" translatable="yes">Zane Swafford 2013</property>
+    <property name="website">www.zaneswafford.com/spindl</property>
+    <property name="website_label" translatable="yes">www.zaneswafford.com/spindl</property>
     <property name="license" translatable="yes">Copyright (C) 2013 &lt;Zane Swafford&gt; &lt;zane@zaneswafford.com&gt;
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

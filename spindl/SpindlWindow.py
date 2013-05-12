@@ -43,7 +43,9 @@ if not os.path.isdir(spindl_directory):
 # Location of the activity database
 CONST_DB_FILE_PATH = spindl_directory + 'spindl.db'
 CONST_CHART_PATH = spindl_directory + 'chart.svg'
-CONST_ICON_PATH = '/home/zane/spindl/data/media/spindl.svg'
+CONST_ICON_PATH = '/opt/spindl/data/media/spindl.svg'
+CONST_MONO_ICON_PATH = '/opt/spindl/data/media/spindl-mono.svg'
+CONST_MEDIA_PATH = '/opt/spindl/data/media/'
 
 # See spindl_lib.Window.py for more details about how this class works
 class SpindlWindow(Window):
@@ -228,7 +230,7 @@ class SpindlWindow(Window):
                                     self.activity_trend_cellrenderertext,  
                                     self.trend_image_pixbuf,
                                     self.percent_change_cellrenderertext,
-                                    '/home/zane/spindl/data/media/')
+                                    CONST_MEDIA_PATH)
         self.trendView.set_visible(False)
         # Set the data
         self.charter.data = []
@@ -239,7 +241,7 @@ class SpindlWindow(Window):
         self.indicator = Indicator(self.indicator_menu, 
                                     self.current_activity_indicator,
                                     self.timer_indicator,
-                                    CONST_ICON_PATH)
+                                    CONST_MONO_ICON_PATH)
         self.launcher = Launcher(self.spindl_window, self.notebook1)
         # Load the previous logs from the database
         for entry in self.filer.read_log("*"):
@@ -337,32 +339,34 @@ class SpindlWindow(Window):
                                         (entry[0], 
                                         self.timer.format_timer(entry[1]), 
                                         self.timer.format_timer(entry[2])))
-        model = self.for_combobox.get_model()
-        index = self.for_combobox.get_active()
-        active_item = model[index][0]
-        # Update the current date
-        self.timer.update_current_date()
-        if active_item == 'All Time':
-            # Refresh the graph to reflect the totals
-            self.refresh_totals_chart()
-        elif active_item == 'Day':
-            # Format the day entry as a date
-            format_entry_as_date(self.timer.current_date, self.day_entry, 
-                                self.day_value)
-            # Refresh the graph to reflect changes in the day entry
-            self.refresh_day_chart()
-        elif active_item == 'Month':
-            # Format the month entry as a date
-            format_entry_as_date(self.timer.current_date, self.month_entry, 
-                                self.month_value, show_days=False)
-            # Refresh the graph to reflect changes in the day entry
-            self.refresh_month_chart()
-        elif active_item == 'Span of Time':
-            # Format the span entries as a date
-            format_entry_as_date(self.timer.current_date, self.from_entry, self.from_value)
-            format_entry_as_date(self.timer.current_date, self.to_entry, self.to_value)
-            # Refresh the graph to reflect changes in the day entry
-            self.refresh_span_chart()
+        # If the for combobox for analytics has been set, update the chart
+        if (not self.for_combobox.get_active() == -1):
+            model = self.for_combobox.get_model()
+            index = self.for_combobox.get_active()
+            active_item = model[index][0]
+            # Update the current date
+            self.timer.update_current_date()
+            if active_item == 'All Time':
+                # Refresh the graph to reflect the totals
+                self.refresh_totals_chart()
+            elif active_item == 'Day':
+                # Format the day entry as a date
+                format_entry_as_date(self.timer.current_date, self.day_entry, 
+                                    self.day_value)
+                # Refresh the graph to reflect changes in the day entry
+                self.refresh_day_chart()
+            elif active_item == 'Month':
+                # Format the month entry as a date
+                format_entry_as_date(self.timer.current_date, self.month_entry, 
+                                    self.month_value, show_days=False)
+                # Refresh the graph to reflect changes in the day entry
+                self.refresh_month_chart()
+            elif active_item == 'Span of Time':
+                # Format the span entries as a date
+                format_entry_as_date(self.timer.current_date, self.from_entry, self.from_value)
+                format_entry_as_date(self.timer.current_date, self.to_entry, self.to_value)
+                # Refresh the graph to reflect changes in the day entry
+                self.refresh_span_chart()
         # Load the new activity information into the set_activity_menu
         format_menu_from_totals(self.filer.read_total(self.timer.current_date), 
                                 self.set_activity_menu_list,
@@ -437,8 +441,10 @@ class SpindlWindow(Window):
             self.refresh_month_chart()
         elif active_item == 'Span of Time':
             # Format the span entries as a date
-            format_entry_as_date(self.timer.current_date, self.from_entry, self.from_value)
-            format_entry_as_date(self.timer.current_date, self.to_entry, self.to_value)
+            format_entry_as_date(self.timer.current_date, self.from_entry, 
+                                    self.from_value)
+            format_entry_as_date(self.timer.current_date, self.to_entry, 
+                                    self.to_value)
             # Refresh the graph to reflect changes in the day entry
             self.refresh_span_chart()
         # Load the new activity information into the set_activity_menu
@@ -599,8 +605,11 @@ class SpindlWindow(Window):
             self.charter.clear()
             self.charter.data = self.filer.read_log('*')
             # Create the chart of type pie
-            self.charter.create_chart(span=('span',(0,0,0,from_day,from_month,from_year),
-                                            (59,59,23,to_day,to_month,to_year)))
+            self.charter.create_chart(span=('span', (0, 0, 0, 
+                                                        from_day,from_month, 
+                                                        from_year),
+                                                    (59, 59, 23, to_day,
+                                                        to_month,to_year)))
             # Load the chart into the webview
             self.charter.load_into_webview()
         elif self.trendView.visible:
@@ -945,12 +954,14 @@ class SpindlWindow(Window):
             self.refresh_month_chart()
         elif active_item == 'Span of Time':
             # Format the span entries as a date
-            format_entry_as_date(self.timer.current_date, self.from_entry, self.from_value)
-            format_entry_as_date(self.timer.current_date, self.to_entry, self.to_value)
+            format_entry_as_date(self.timer.current_date, self.from_entry,
+                                    self.from_value)
+            format_entry_as_date(self.timer.current_date, self.to_entry, 
+                                    self.to_value)
             # Refresh the graph to reflect changes in the day entry
             self.refresh_span_chart()
-        else:
-            format_entry_as_date(self.timer.current_date, self.day_entry, 0)
+        #else:
+         #   format_entry_as_date(self.timer.current_date, self.day_entry, 0)
 
     def on_minus_day_button_pressed(self, user_data):
         """Called when the user presses the minus day button to decrement the 
@@ -1154,8 +1165,10 @@ class SpindlWindow(Window):
             self.refresh_month_chart()
         elif active_item == 'Span of Time':
             # Format the span entries as a date
-            format_entry_as_date(self.timer.current_date, self.from_entry, self.from_value)
-            format_entry_as_date(self.timer.current_date, self.to_entry, self.to_value)
+            format_entry_as_date(self.timer.current_date, self.from_entry, 
+                                    self.from_value)
+            format_entry_as_date(self.timer.current_date, self.to_entry, 
+                                    self.to_value)
             # Refresh the graph to reflect changes in the day entry
             self.refresh_span_chart()
 
@@ -1184,8 +1197,10 @@ class SpindlWindow(Window):
             self.refresh_month_chart()
         elif active_item == 'Span of Time':
             # Format the span entries as a date
-            format_entry_as_date(self.timer.current_date, self.from_entry, self.from_value)
-            format_entry_as_date(self.timer.current_date, self.to_entry, self.to_value)
+            format_entry_as_date(self.timer.current_date, self.from_entry, 
+                                    self.from_value)
+            format_entry_as_date(self.timer.current_date, self.to_entry, 
+                                    self.to_value)
             # Refresh the graph to reflect changes in the day entry
             self.refresh_span_chart()
 
@@ -1256,7 +1271,7 @@ class SpindlWindow(Window):
             self.spindl_window.set_skip_pager_hint(True)
             # Switch the indicator hide button to show mode
             self.hide_window_indicator.set_label("Show Spindl")
-        # If the indicator hide button is set to show mode
+        # Else the indicator hide button is set to show mode
         else:
             # Make the main window visible
             self.spindl_window.set_visible(True)

@@ -135,7 +135,7 @@ class InstallAndUpdateDataDirectory(DistUtilsExtra.auto.install_auto):
 ##################################################################################
 
 DistUtilsExtra.auto.setup(
-    name='Spindl',
+    name='spindl',
     version='0.1',
     license='Apache-2.0',
     author='Zane Swafford',
