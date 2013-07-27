@@ -24,9 +24,9 @@ __all__ = [
 
 # Where your project will look for your data (for instance, images and ui
 # files). By default, this is ../data, relative your trunk layout
-__spindl_data_directory__ = '../data/'
+__spindl_data_directory__ = '/opt/spindl/share/spindl/'
 __license__ = 'Apache-2.0'
-__version__ = 'VERSION'
+__version__ = '1.00'
 
 import os
 
