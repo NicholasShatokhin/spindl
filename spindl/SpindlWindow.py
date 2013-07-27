@@ -1310,3 +1310,13 @@ class SpindlWindow(Window):
         self.set_activity_entry.set_text("")
         # Hide the window once finised setting
         self.set_activity_window.set_visible(False)
+
+    def on_set_activity_button_clicked(self, user_data):
+        """Called when the user clicks the set button on the Set Activity 
+            Window"""
+        # Set the activity label as the text from the text entry
+        self.set_current_activity(self.set_activity_entry.get_text())
+        # Clear the text entry
+        self.set_activity_entry.set_text("")
+        # Hide the window once finised setting
+        self.set_activity_window.set_visible(False)
